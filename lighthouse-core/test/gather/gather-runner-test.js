@@ -644,7 +644,7 @@ describe('GatherRunner', function() {
       mainRecord.url = url;
       mainRecord.statusCode = 404;
       const error = GatherRunner.getPageLoadError(url, [mainRecord]);
-      assert.equal(error.message, 'ERROR_STATUS_CODE_RESPONSE');
+      assert.equal(error.message, 'ERRORED_DOCUMENT_REQUEST');
       assert.ok(/Your page failed to load/.test(error.friendlyMessage));
     });
 
@@ -654,7 +654,7 @@ describe('GatherRunner', function() {
       mainRecord.url = url;
       mainRecord.statusCode = 500;
       const error = GatherRunner.getPageLoadError(url, [mainRecord]);
-      assert.equal(error.message, 'ERROR_STATUS_CODE_RESPONSE');
+      assert.equal(error.message, 'ERRORED_DOCUMENT_REQUEST');
       assert.ok(/Your page failed to load/.test(error.friendlyMessage));
     });
   });

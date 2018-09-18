@@ -139,13 +139,15 @@ const ERRORS = {
     message: strings.pageLoadFailed,
     lhrRuntimeError: true,
   },
+  /* Used when DevTools reports loading failed. Usually an internal (Chrome) issue. */
   FAILED_DOCUMENT_REQUEST: {
     code: 'FAILED_DOCUMENT_REQUEST',
     message: strings.pageLoadFailed,
     lhrRuntimeError: true,
   },
-  ERROR_STATUS_CODE_RESPONSE: {
-    code: 'ERROR_STATUS_CODE_RESPONSE',
+  /* Used when status code is 4xx or 5xx. */
+  ERRORED_DOCUMENT_REQUEST: {
+    code: 'ERRORED_DOCUMENT_REQUEST',
     message: strings.pageLoadFailed,
     lhrRuntimeError: true,
   },
