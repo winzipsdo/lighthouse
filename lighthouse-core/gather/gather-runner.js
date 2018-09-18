@@ -10,6 +10,7 @@ const LHError = require('../lib/lh-error');
 const URL = require('../lib/url-shim');
 const NetworkRecorder = require('../lib/network-recorder.js');
 const constants = require('../config/constants');
+const strings = require('../lib/strings');
 
 const Driver = require('../gather/driver.js'); // eslint-disable-line no-unused-vars
 
@@ -165,7 +166,7 @@ class GatherRunner {
       errorReason = mainRecord.localizedFailDescription;
     } else if (mainRecord.hasErrorStatusCode()) {
       errorCode = LHError.errors.ERRORED_DOCUMENT_REQUEST;
-      errorReason = `Request returned with status code ${mainRecord.statusCode}`;
+      errorReason = `Status code: ${mainRecord.statusCode}`;
     }
 
     if (errorCode) {
@@ -279,9 +280,9 @@ class GatherRunner {
     if (!driver.online) pageLoadError = undefined;
 
     if (pageLoadError) {
-      passContext.LighthouseRunWarnings.push('Lighthouse was unable to reliably load the ' +
-        'page you requested. Make sure you are testing the correct URL and that the server is ' +
-        'properly responding to all requests.');
+      // @ts-ignore reason prop
+      const reasonStr = pageLoadError.reason ? ` (${pageLoadError.reason})` : '';
+      passContext.LighthouseRunWarnings.push(strings.pageLoadError + reasonStr);
     }
 
     // Expose devtoolsLog, networkRecords, and trace (if present) to gatherers
@@ -333,7 +334,6 @@ class GatherRunner {
     /** @type {Partial<LH.GathererArtifacts>} */
     const gathererArtifacts = {};
 
-    const pageLoadFailures = [];
     const resultsEntries = /** @type {GathererResultsEntries} */ (Object.entries(gathererResults));
     for (const [gathererName, phaseResultsPromises] of resultsEntries) {
       if (gathererArtifacts[gathererName] !== undefined) continue;
@@ -349,17 +349,10 @@ class GatherRunner {
         // An error result must be non-fatal to not have caused an exit by now,
         // so return it to runner to handle turning it into an error audit.
         gathererArtifacts[gathererName] = err;
-        // Track page load errors separately, so we can fail loudly if needed.
-        if (LHError.isPageLoadError(err)) pageLoadFailures.push(err);
       }
 
       if (gathererArtifacts[gathererName] === undefined) {
         throw new Error(`${gathererName} failed to provide an artifact.`);
-      }
-
-      // Fail the run if more than 50% of all artifacts failed due to page load failure.
-      if (pageLoadFailures.length > Object.keys(gathererArtifacts).length * 0.5) {
-        throw LHError.fromLighthouseError(pageLoadFailures[0]);
       }
     }
 

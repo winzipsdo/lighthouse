@@ -14,4 +14,5 @@ module.exports = {
   internalChromeError: `An internal Chrome error occurred. Please restart Chrome and try re-running Lighthouse.`,
   requestContentTimeout: 'Fetching resource content has exceeded the allotted time',
   urlInvalid: `The URL you have provided appears to be invalid.`,
+  pageLoadError: `Lighthouse was unable to reliably load the page you requested. Make sure you are testing the correct URL and that the server is properly responding to all requests.`,
 };
