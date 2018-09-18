@@ -144,6 +144,11 @@ const ERRORS = {
     message: strings.pageLoadFailed,
     lhrRuntimeError: true,
   },
+  ERROR_STATUS_CODE_RESPONSE: {
+    code: 'ERROR_STATUS_CODE_RESPONSE',
+    message: strings.pageLoadFailed,
+    lhrRuntimeError: true,
+  },
 
   // Protocol internal failures
   TRACING_ALREADY_STARTED: {
