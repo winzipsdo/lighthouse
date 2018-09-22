@@ -11,20 +11,13 @@
  * Nexus 5X metrics adapted from emulated_devices/module.json
  * @type {LH.Crdp.Emulation.SetDeviceMetricsOverrideRequest}
  */
+
+// HACK FOR DESKTOPY
 const NEXUS5X_EMULATION_METRICS = {
-  mobile: true,
-  screenWidth: 412,
-  screenHeight: 732,
-  width: 412,
-  height: 732,
-  positionX: 0,
-  positionY: 0,
-  scale: 1,
-  deviceScaleFactor: 2.625,
-  screenOrientation: {
-    angle: 0,
-    type: 'portraitPrimary',
-  },
+  mobile: false,
+  width: 1366,
+  height: 768,
+  deviceScaleFactor: 1,
 };
 
 const NEXUS5X_USERAGENT = {
