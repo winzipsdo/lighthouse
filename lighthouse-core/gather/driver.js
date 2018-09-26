@@ -916,13 +916,24 @@ class Driver {
   }
 
   /**
-   * @param {{additionalTraceCategories?: string|null}=} settings
+   * @param {LH.Gatherer.PassContext} passContext
    * @return {Promise<void>}
    */
-  beginTrace(settings) {
+  beginTrace(passContext) {
+    const settings = passContext.settings;
     const additionalCategories = (settings && settings.additionalTraceCategories &&
         settings.additionalTraceCategories.split(',')) || [];
     const traceCategories = this._traceCategories.concat(additionalCategories);
+
+    // In Chrome 71+, we trade the chatty 'toplevel' cat for our own, reducing overall trace size
+    // TODO(COMPAT): Once m71 ships to stable, change the traceCategories for real
+    const reChrome71 = /Chrome\/(Headless)?7[1-9]/;
+    if (passContext.hostUserAgent && reChrome71.test(passContext.hostUserAgent)) {
+      traceCategories.forEach((cat, idx) => {
+        if (cat === 'toplevel') traceCategories[idx] = 'disabled-by-default-lighthouse';
+      });
+    }
+
     const uniqueCategories = Array.from(new Set(traceCategories));
 
     // Check any domains that could interfere with or add overhead to the trace.

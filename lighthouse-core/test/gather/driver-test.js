@@ -224,7 +224,7 @@ describe('Browser Driver', () => {
   });
 
   it('will request default traceCategories', () => {
-    return driverStub.beginTrace().then(() => {
+    return driverStub.beginTrace({settings: {}}).then(() => {
       const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
       const categories = traceCmd.params.categories;
       assert.ok(categories.includes('devtools.timeline'), 'contains devtools.timeline');
@@ -232,13 +232,26 @@ describe('Browser Driver', () => {
   });
 
   it('will use requested additionalTraceCategories', () => {
-    return driverStub.beginTrace({additionalTraceCategories: 'v8,v8.execute,toplevel'}).then(() => {
+    const passContext = {settings: {additionalTraceCategories: 'v8,v8.execute,toplevel'}};
+    return driverStub.beginTrace(passContext).then(() => {
       const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
       const categories = traceCmd.params.categories;
       assert.ok(categories.includes('blink'), 'contains default categories');
       assert.ok(categories.includes('v8.execute'), 'contains added categories');
       assert.ok(categories.indexOf('toplevel') === categories.lastIndexOf('toplevel'),
           'de-dupes categories');
+    });
+  });
+
+
+  it('will adjust traceCategories based on host user agent', () => {
+    // eslint-disable-next-line max-len
+    const passContext = {hostUserAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/Headless71.0.3561.0 Safari/537.36'};
+    return driverStub.beginTrace(passContext).then(() => {
+      const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
+      const categories = traceCmd.params.categories;
+      assert.ok(categories.includes('disabled-by-default-lighthouse'), 'contains new categories');
+      assert.equal(categories.indexOf('toplevel'), -1, 'excludes toplevel');
     });
   });
 
