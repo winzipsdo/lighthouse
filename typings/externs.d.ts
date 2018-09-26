@@ -4,9 +4,8 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
 
-import _Crdp from 'vscode-chrome-debug-core/lib/crdp/crdp';
-import _StrictEventEmitter from '../third-party/strict-event-emitter-types/index';
-import { EventEmitter } from 'events';
+import _Crdp from 'devtools-protocol/types/protocol';
+import _CrdpMappings from 'devtools-protocol/types/protocol-mapping'
 
 declare global {
   // Augment global Error type to include node's optional `code` property
@@ -50,13 +49,13 @@ declare global {
 
   /** Obtain the type of the first parameter of a function. */
   type FirstParamType<T extends (arg1: any, ...args: any[]) => any> =
-    T extends (arg1: infer P, ...args: any[]) => any ? P : any;
+    T extends (arg1: infer P, ...args: any[]) => any ? P : never;
 
   module LH {
     // re-export useful type modules under global LH module.
     export import Crdp = _Crdp;
-    export type StrictEventEmitter<TEventRecord, TEmitterType = EventEmitter, TEmitRecord = TEventRecord> =
-      _StrictEventEmitter<TEmitterType, TEventRecord, TEmitRecord>;
+    export import CrdpEvents = _CrdpMappings.Events;
+    export import CrdpCommands = _CrdpMappings.Commands;
 
     interface ThrottlingSettings {
       // simulation settings
@@ -84,6 +83,7 @@ declare global {
       gatherMode?: boolean | string;
       disableStorageReset?: boolean;
       disableDeviceEmulation?: boolean;
+      emulatedFormFactor?: 'mobile'|'desktop'|'none';
       throttlingMethod?: 'devtools'|'simulate'|'provided';
       throttling?: ThrottlingSettings;
       onlyAudits?: string[] | null;
@@ -166,6 +166,7 @@ declare global {
         fileName?: string;
         snapshot?: string;
         data?: {
+          documentLoaderURL?: string;
           frames?: {
             frame: string;
             parent?: string;
