@@ -34,6 +34,8 @@ const subpageVisibleClass = 'subpage--visible';
 
 /** @type {?URL} */
 let siteURL = null;
+/** @type {boolean} */
+let isRunning = false;
 
 function getLighthouseVersion() {
   return chrome.runtime.getManifest().version;
@@ -147,17 +149,25 @@ function createOptionItem(text, id, isChecked) {
  * @param {{selectedCategories: Array<string>, useDevTools: boolean}} settings
  */
 async function onGenerateReportButtonClick(background, settings) {
+  if (isRunning) {
+    return;
+  }
+  isRunning = true;
+
+  // resetting status message
+  const statusMsg = find('.status__msg');
+  statusMsg.textContent = 'Starting...';
+
   showRunningSubpage();
 
   const feedbackEl = find('.feedback');
   feedbackEl.textContent = '';
-
   const {selectedCategories, useDevTools} = settings;
-  // TODO(bckenny): make flags workable as a type.
-  const flags = /** @type {LH.Flags} */ ({throttlingMethod: useDevTools ? 'devtools' : 'simulate'});
+  /** @type {LH.Flags} */
+  const flags = {throttlingMethod: useDevTools ? 'devtools' : 'simulate'};
 
   try {
-    await background.runLighthouseInExtension({flags}, selectedCategories);
+    await background.runLighthouseInExtension(flags, selectedCategories);
 
     // Close popup once report is opened in a new tab
     window.close();
@@ -178,13 +188,15 @@ async function onGenerateReportButtonClick(background, settings) {
     feedbackEl.textContent = message;
 
     if (includeReportLink) {
-      feedbackEl.className = 'feedback-error';
+      feedbackEl.className = 'feedback feedback-error';
       feedbackEl.appendChild(buildReportErrorLink(err));
     }
 
     hideRunningSubpage();
     background.console.error(err);
   }
+
+  isRunning = false;
 }
 
 /**
@@ -247,7 +259,7 @@ async function initPopup() {
   });
 
   // bind throttling control button
-  const lanternCheckbox = /** @type {HTMLInputElement} */ (find('lantern-checkbox'));
+  const lanternCheckbox = /** @type {HTMLInputElement} */ (find('#lantern-checkbox'));
   lanternCheckbox.addEventListener('change', async () => {
     const settings = await background.loadSettings();
     settings.useDevTools = !lanternCheckbox.checked;
@@ -255,7 +267,7 @@ async function initPopup() {
   });
 
   // bind Generate Report button
-  const generateReportButton = find('generate-report');
+  const generateReportButton = find('#generate-report');
   generateReportButton.addEventListener('click', () => {
     background.loadSettings().then(settings => {
       onGenerateReportButtonClick(background, settings);
@@ -263,14 +275,14 @@ async function initPopup() {
   });
 
   // bind View Options button
-  const generateOptionsEl = find('configure-options');
+  const generateOptionsEl = find('#configure-options');
   const optionsEl = find('.options');
   generateOptionsEl.addEventListener('click', () => {
     optionsEl.classList.add(subpageVisibleClass);
   });
 
   // bind Save Options button
-  const okButton = find('ok');
+  const okButton = find('#ok');
   okButton.addEventListener('click', () => {
     // Save settings when options page is closed.
     const checkboxes = /** @type {NodeListOf<HTMLInputElement>} */

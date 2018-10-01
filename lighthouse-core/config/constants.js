@@ -36,9 +36,11 @@ const defaultSettings = {
   gatherMode: false,
   disableStorageReset: false,
   disableDeviceEmulation: false,
+  emulatedFormFactor: 'mobile',
 
   // the following settings have no defaults but we still want ensure that `key in settings`
   // in config will work in a typechecked way
+  locale: 'en-US', // actual default determined by Config using lib/i18n
   blockedUrlPatterns: null,
   additionalTraceCategories: null,
   extraHeaders: null,
@@ -47,6 +49,7 @@ const defaultSettings = {
   skipAudits: null,
 };
 
+/** @type {LH.Config.Pass} */
 const defaultPassConfig = {
   passName: 'defaultPass',
   recordTrace: false,

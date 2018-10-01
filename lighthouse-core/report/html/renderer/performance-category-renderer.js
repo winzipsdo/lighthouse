@@ -1,22 +1,30 @@
 /**
- * @license Copyright 2018 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+ * @license
+ * Copyright 2018 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS-IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 'use strict';
 
 /* globals self, Util, CategoryRenderer */
 
 /** @typedef {import('./dom.js')} DOM */
-/** @typedef {import('./report-renderer.js').CategoryJSON} CategoryJSON */
-/** @typedef {import('./report-renderer.js').GroupJSON} GroupJSON */
-/** @typedef {import('./report-renderer.js').AuditJSON} AuditJSON */
 /** @typedef {import('./details-renderer.js').FilmstripDetails} FilmstripDetails */
 /** @typedef {LH.Result.Audit.OpportunityDetails} OpportunityDetails */
 
 class PerformanceCategoryRenderer extends CategoryRenderer {
   /**
-   * @param {AuditJSON} audit
+   * @param {LH.ReportResult.AuditRef} audit
    * @return {Element}
    */
   _renderMetric(audit) {
@@ -46,7 +54,7 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
   }
 
   /**
-   * @param {AuditJSON} audit
+   * @param {LH.ReportResult.AuditRef} audit
    * @param {number} index
    * @param {number} scale
    * @return {Element}
@@ -85,7 +93,7 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
    * Get an audit's wastedMs to sort the opportunity by, and scale the sparkline width
    * Opportunties with an error won't have a details object, so MIN_VALUE is returned to keep any
    * erroring opportunities last in sort order.
-   * @param {AuditJSON} audit
+   * @param {LH.ReportResult.AuditRef} audit
    * @return {number}
    */
   _getWastedMs(audit) {
@@ -102,26 +110,33 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
   }
 
   /**
-   * @param {CategoryJSON} category
-   * @param {Object<string, GroupJSON>} groups
+   * @param {LH.ReportResult.Category} category
+   * @param {Object<string, LH.Result.ReportGroup>} groups
+   * @param {'PSI'=} environment 'PSI' and undefined are the only valid values
    * @return {Element}
    * @override
    */
-  render(category, groups) {
+  render(category, groups, environment) {
     const element = this.dom.createElement('div', 'lh-category');
-    this.createPermalinkSpan(element, category.id);
-    element.appendChild(this.renderCategoryHeader(category));
+    if (environment === 'PSI') {
+      const gaugeEl = this.dom.createElement('div', 'lh-score__gauge');
+      gaugeEl.appendChild(this.renderScoreGauge(category));
+      element.appendChild(gaugeEl);
+    } else {
+      this.createPermalinkSpan(element, category.id);
+      element.appendChild(this.renderCategoryHeader(category));
+    }
 
     // Metrics
     const metricAudits = category.auditRefs.filter(audit => audit.group === 'metrics');
-    const metricAuditsEl = this.renderAuditGroup(groups['metrics'], {expandable: false});
+    const metricAuditsEl = this.renderAuditGroup(groups.metrics, {expandable: false});
 
     const keyMetrics = metricAudits.filter(a => a.weight >= 3);
     const otherMetrics = metricAudits.filter(a => a.weight < 3);
 
-    const metricsBoxesEl = this.dom.createChildOf(metricAuditsEl, 'div', 'lh-metric-container');
-    const metricsColumn1El = this.dom.createChildOf(metricsBoxesEl, 'div', 'lh-metric-column');
-    const metricsColumn2El = this.dom.createChildOf(metricsBoxesEl, 'div', 'lh-metric-column');
+    const metricsBoxesEl = this.dom.createChildOf(metricAuditsEl, 'div', 'lh-columns');
+    const metricsColumn1El = this.dom.createChildOf(metricsBoxesEl, 'div', 'lh-column');
+    const metricsColumn2El = this.dom.createChildOf(metricsBoxesEl, 'div', 'lh-column');
 
     keyMetrics.forEach(item => {
       metricsColumn1El.appendChild(this._renderMetric(item));
@@ -129,9 +144,13 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
     otherMetrics.forEach(item => {
       metricsColumn2El.appendChild(this._renderMetric(item));
     });
-    const estValuesEl = this.dom.createChildOf(metricsColumn2El, 'div',
-        'lh-metrics__disclaimer lh-metrics__disclaimer');
-    estValuesEl.textContent = 'Values are estimated and may vary.';
+
+    // 'Values are estimated and may vary' is used as the category description for PSI
+    if (environment !== 'PSI') {
+      const estValuesEl = this.dom.createChildOf(metricsColumn2El, 'div',
+          'lh-metrics__disclaimer lh-metrics__disclaimer');
+      estValuesEl.textContent = Util.UIStrings.varianceDisclaimer;
+    }
 
     metricAuditsEl.classList.add('lh-audit-group--metrics');
     element.appendChild(metricAuditsEl);
@@ -159,6 +178,12 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
       const scale = Math.max(Math.ceil(maxWaste / 1000) * 1000, minimumScale);
       const groupEl = this.renderAuditGroup(groups['load-opportunities'], {expandable: false});
       const tmpl = this.dom.cloneTemplate('#tmpl-lh-opportunity-header', this.templateContext);
+
+      this.dom.find('.lh-load-opportunity__col--one', tmpl).textContent =
+        Util.UIStrings.opportunityResourceColumnLabel;
+      this.dom.find('.lh-load-opportunity__col--two', tmpl).textContent =
+        Util.UIStrings.opportunitySavingsColumnLabel;
+
       const headerEl = this.dom.find('.lh-load-opportunity__header', tmpl);
       groupEl.appendChild(headerEl);
       opportunityAudits.forEach((item, i) =>

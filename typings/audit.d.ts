@@ -4,11 +4,22 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
 
+import ArbitraryEqualityMap = require('../lighthouse-core/lib/arbitrary-equality-map.js');
+
 declare global {
   module LH.Audit {
     export interface Context {
-      options: Record<string, any>; // audit options
+      /** audit options */
+      options: Record<string, any>;
       settings: Config.Settings;
+      /** Push to this array to add top-level warnings to the LHR. */
+      LighthouseRunWarnings: Array<string>;
+      /**
+       * Nested cache for already-computed computed artifacts. Keyed first on
+       * the computed artifact's `name` property, then on input artifact(s).
+       * Values are Promises resolving to the computedArtifact result.
+       */
+      computedCache: Map<string, ArbitraryEqualityMap>;
     }
 
     export interface ScoreOptions {
@@ -34,11 +45,17 @@ declare global {
     export type DisplayValue = string | DisplayValueArray;
 
     export interface Meta {
-      name: string;
+      /** The string identifier of the audit, in kebab case. */
+      id: string;
+      /** Short, user-visible title for the audit when successful. */
+      title: string;
+      /** Short, user-visible title for the audit when failing. */
+      failureTitle?: string;
+      /** Explanation of why the user should care about the audit. */
       description: string;
-      helpText: string;
+      /** A list of the members of LH.Artifacts that must be present for the audit to execute. */
       requiredArtifacts: Array<keyof Artifacts>;
-      failureDescription?: string;
+      /** A string identifying how the score should be interpreted for display. */
       scoreDisplayMode?: Audit.ScoreDisplayMode;
     }
 
@@ -78,7 +95,7 @@ declare global {
 
     export type DetailsItem = string | number | DetailsRendererNodeDetailsJSON |
       DetailsRendererLinkDetailsJSON | DetailsRendererCodeDetailJSON | undefined |
-      boolean | DetailsRendererUrlDetailsJSON;
+      boolean | DetailsRendererUrlDetailsJSON | null;
 
     export interface DetailsRendererNodeDetailsJSON {
       type: 'node';
@@ -121,9 +138,21 @@ declare global {
       errorMessage?: string;
       warnings?: string[];
       score: number|null;
+      /**
+       * A string identifying how the score should be interpreted:
+       * 'binary': pass/fail audit (0 and 1 are only possible scores).
+       * 'numeric': scores of 0-1 (map to displayed scores of 0-100).
+       * 'informative': the audit is an FYI only, and can't be interpreted as pass/fail. Score is null and should be ignored.
+       * 'not-applicable': the audit turned out to not apply to the page. Score is null and should be ignored.
+       * 'manual': The audit exists only to tell you to review something yourself. Score is null and should be ignored.
+       * 'error': There was an error while running the audit (check `errorMessage` for details). Score is null and should be ignored.
+       */
       scoreDisplayMode: ScoreDisplayMode;
+      /** Short, user-visible title for the audit. The text can change depending on if the audit passed or failed. */
       title: string;
+      /** The string identifier of the audit, in kebab case. */
       id: string;
+      /** A more detailed description that describes why the audit is important and links to Lighthouse documentation on the audit; markdown links supported. */
       description: string;
       // TODO(bckenny): define details
       details?: any;
@@ -139,12 +168,23 @@ declare global {
           url: string;
           startTime: number;
           endTime: number;
-          _responseReceivedTime: number;
+          responseReceivedTime: number;
           transferSize: number;
         };
         children: SimpleCriticalRequestNode;
       }
     }
+
+    type MultiCheckAuditP1 = Partial<Record<Artifacts.ManifestValueCheckID, boolean>>;
+    type MultiCheckAuditP2 = Partial<Artifacts.ManifestValues>;
+    interface MultiCheckAuditP3 {
+      failures: Array<string>;
+      warnings?: undefined;
+      manifestValues?: undefined;
+      allChecks?: undefined;
+    }
+
+    export type MultiCheckAuditDetails = MultiCheckAuditP1 & MultiCheckAuditP2 & MultiCheckAuditP3;
   }
 }
 

@@ -9,7 +9,7 @@ const MetricArtifact = require('./metric');
 
 const NetworkRecorder = require('../../../lib/network-recorder');
 const TracingProcessor = require('../../../lib/traces/tracing-processor');
-const LHError = require('../../../lib/errors');
+const LHError = require('../../../lib/lh-error');
 
 const REQUIRED_QUIET_WINDOW = 5000;
 const ALLOWED_CONCURRENT_REQUESTS = 2;
@@ -27,7 +27,7 @@ class Interactive extends MetricArtifact {
   /**
    * Finds all time periods where the number of inflight requests is less than or equal to the
    * number of allowed concurrent requests (2).
-   * @param {Array<LH.WebInspector.NetworkRequest>} networkRecords
+   * @param {Array<LH.Artifacts.NetworkRequest>} networkRecords
    * @param {{timestamps: {traceEnd: number}}} traceOfTab
    * @return {Array<TimePeriod>}
    */
@@ -85,7 +85,7 @@ class Interactive extends MetricArtifact {
   /**
    * Finds the first time period where a network quiet period and a CPU quiet period overlap.
    * @param {Array<TimePeriod>} longTasks
-   * @param {Array<LH.WebInspector.NetworkRequest>} networkRecords
+   * @param {Array<LH.Artifacts.NetworkRequest>} networkRecords
    * @param {LH.Artifacts.TraceOfTab} traceOfTab
    * @return {{cpuQuietPeriod: TimePeriod, networkQuietPeriod: TimePeriod, cpuQuietPeriods: Array<TimePeriod>, networkQuietPeriods: Array<TimePeriod>}}
    */
@@ -148,9 +148,6 @@ class Interactive extends MetricArtifact {
    */
   computeObservedMetric(data) {
     const {traceOfTab, networkRecords} = data;
-    if (!traceOfTab.timestamps.firstContentfulPaint) {
-      throw new LHError(LHError.errors.NO_FCP);
-    }
 
     if (!traceOfTab.timestamps.domContentLoaded) {
       throw new LHError(LHError.errors.NO_DCL);

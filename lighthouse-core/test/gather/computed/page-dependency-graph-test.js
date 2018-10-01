@@ -6,9 +6,9 @@
 'use strict';
 
 const PageDependencyGraph = require('../../../gather/computed/page-dependency-graph');
-const Node = require('../../../lib/dependency-graph/node');
+const BaseNode = require('../../../lib/dependency-graph/base-node');
 const Runner = require('../../../runner.js');
-const WebInspector = require('../../../lib/web-inspector');
+const NetworkRequest = require('../../../lib/network-request');
 
 const sampleTrace = require('../../fixtures/traces/progressive-app-m60.json');
 const sampleDevtoolsLog = require('../../fixtures/traces/progressive-app-m60.devtools.log.json');
@@ -19,22 +19,24 @@ function createRequest(
   requestId,
   url,
   startTime = 0,
-  _initiator = null,
-  _resourceType = WebInspector.resourceTypes.Document
+  initiator = null,
+  resourceType = NetworkRequest.TYPES.Document
 ) {
   startTime = startTime / 1000;
   const endTime = startTime + 0.05;
-  return {requestId, url, startTime, endTime, _initiator, _resourceType};
+  return {requestId, url, startTime, endTime, initiator, resourceType};
 }
 
-/* eslint-env mocha */
+const TOPLEVEL_TASK_NAME = 'TaskQueueManager::ProcessTaskFromWorkQueue';
+
+/* eslint-env jest */
 describe('PageDependencyGraph computed artifact:', () => {
   let computedArtifacts;
   let traceOfTab;
 
   function addTaskEvents(startTs, duration, evts) {
     const mainEvent = {
-      name: 'TaskQueueManager::ProcessTaskFromWorkQueue',
+      name: TOPLEVEL_TASK_NAME,
       tid: 1,
       ts: startTs * 1000,
       dur: duration * 1000,
@@ -65,7 +67,7 @@ describe('PageDependencyGraph computed artifact:', () => {
         trace: sampleTrace,
         devtoolsLog: sampleDevtoolsLog,
       }).then(output => {
-        assert.ok(output instanceof Node, 'did not return a graph');
+        assert.ok(output instanceof BaseNode, 'did not return a graph');
 
         const dependents = output.getDependents();
         const nodeWithNestedDependents = dependents.find(node => node.getDependents().length);
@@ -149,6 +151,8 @@ describe('PageDependencyGraph computed artifact:', () => {
       const request4 = createRequest(4, '4', 10, {url: '2'});
       const networkRecords = [request1, request2, request3, request4];
 
+      addTaskEvents(0, 0, []);
+
       const graph = PageDependencyGraph.createGraph(traceOfTab, networkRecords);
       const nodes = [];
       graph.traverse(node => nodes.push(node));
@@ -165,7 +169,7 @@ describe('PageDependencyGraph computed artifact:', () => {
       const request1 = createRequest(1, '1', 0);
       const request2 = createRequest(2, '2', 50);
       const request3 = createRequest(3, '3', 50);
-      const request4 = createRequest(4, '4', 300, null, WebInspector.resourceTypes.XHR);
+      const request4 = createRequest(4, '4', 300, null, NetworkRequest.TYPES.XHR);
       const networkRecords = [request1, request2, request3, request4];
 
       addTaskEvents(200, 200, [
@@ -202,6 +206,8 @@ describe('PageDependencyGraph computed artifact:', () => {
       const request4 = createRequest(4, '4', 10, {url: '2'});
       const networkRecords = [request1, request2, request3, request4];
 
+      addTaskEvents(0, 0, []);
+
       const graph = PageDependencyGraph.createGraph(traceOfTab, networkRecords);
       const nodes = [];
       graph.traverse(node => nodes.push(node));
@@ -216,10 +222,10 @@ describe('PageDependencyGraph computed artifact:', () => {
 
     it('should be forgiving without cyclic dependencies', () => {
       const request1 = createRequest(1, '1', 0);
-      const request2 = createRequest(2, '2', 250, null, WebInspector.resourceTypes.XHR);
+      const request2 = createRequest(2, '2', 250, null, NetworkRequest.TYPES.XHR);
       const request3 = createRequest(3, '3', 210);
       const request4 = createRequest(4, '4', 590);
-      const request5 = createRequest(5, '5', 595, null, WebInspector.resourceTypes.XHR);
+      const request5 = createRequest(5, '5', 595, null, NetworkRequest.TYPES.XHR);
       const networkRecords = [request1, request2, request3, request4, request5];
 
       addTaskEvents(200, 200, [
@@ -257,9 +263,11 @@ describe('PageDependencyGraph computed artifact:', () => {
     });
 
     it('should set isMainDocument on first document request', () => {
-      const request1 = createRequest(1, '1', 0, null, WebInspector.resourceTypes.Image);
+      const request1 = createRequest(1, '1', 0, null, NetworkRequest.TYPES.Image);
       const request2 = createRequest(2, '2', 5);
       const networkRecords = [request1, request2];
+
+      addTaskEvents(0, 0, []);
 
       const graph = PageDependencyGraph.createGraph(traceOfTab, networkRecords);
       const nodes = [];

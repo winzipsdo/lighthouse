@@ -7,6 +7,7 @@
 
 const MultiCheckAudit = require('./multi-check-audit');
 const SWAudit = require('./service-worker');
+const ManifestValues = require('../gather/computed/manifest-values');
 
 /**
  * @fileoverview
@@ -34,10 +35,10 @@ class WebappInstallBanner extends MultiCheckAudit {
    */
   static get meta() {
     return {
-      name: 'webapp-install-banner',
-      description: 'User can be prompted to Install the Web App',
-      failureDescription: 'User will not be prompted to Install the Web App',
-      helpText: 'Browsers can proactively prompt users to add your app to their homescreen, ' +
+      id: 'webapp-install-banner',
+      title: 'User can be prompted to Install the Web App',
+      failureTitle: 'User will not be prompted to Install the Web App',
+      description: 'Browsers can proactively prompt users to add your app to their homescreen, ' +
           'which can lead to higher engagement. ' +
           '[Learn more](https://developers.google.com/web/tools/lighthouse/audits/install-prompt).',
       requiredArtifacts: ['URL', 'ServiceWorker', 'Manifest', 'StartUrl'],
@@ -57,6 +58,12 @@ class WebappInstallBanner extends MultiCheckAudit {
     const failures = [];
     const bannerCheckIds = [
       'hasName',
+      // Technically shortname isn't required (if name is defined):
+      //   https://cs.chromium.org/chromium/src/chrome/browser/installable/installable_manager.cc?type=cs&q=IsManifestValidForWebApp+f:cc+-f:test&sq=package:chromium&l=473
+      // Despite this, we think it's better to require it anyway.
+      // short_name is preferred for the homescreen icon, but a longer name can be used in
+      // the splash screen and app title. Given the different usecases, we'd like to make it clearer
+      // that the developer has two possible strings to work with.
       'hasShortName',
       'hasStartUrl',
       'hasPWADisplayValue',
@@ -98,14 +105,13 @@ class WebappInstallBanner extends MultiCheckAudit {
 
     if (!hasOfflineStartUrl) {
       failures.push('Service worker does not successfully serve the manifest\'s start_url');
-      // TODO(phulce): align gatherer `debugString` with `explanation`
-      if (artifacts.StartUrl.debugString) {
-        failures.push(artifacts.StartUrl.debugString);
+      if (artifacts.StartUrl.explanation) {
+        failures.push(artifacts.StartUrl.explanation);
       }
     }
 
-    if (artifacts.StartUrl.debugString) {
-      warnings.push(artifacts.StartUrl.debugString);
+    if (artifacts.StartUrl.explanation) {
+      warnings.push(artifacts.StartUrl.explanation);
     }
 
     return {failures, warnings};
@@ -113,33 +119,33 @@ class WebappInstallBanner extends MultiCheckAudit {
 
   /**
    * @param {LH.Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {Promise<{failures: Array<string>, warnings: Array<string>, manifestValues: LH.Artifacts.ManifestValues}>}
    */
-  static audit_(artifacts) {
+  static async audit_(artifacts, context) {
     /** @type {Array<string>} */
     let offlineFailures = [];
     /** @type {Array<string>} */
     let offlineWarnings = [];
 
-    return artifacts.requestManifestValues(artifacts.Manifest).then(manifestValues => {
-      const manifestFailures = WebappInstallBanner.assessManifest(manifestValues);
-      const swFailures = WebappInstallBanner.assessServiceWorker(artifacts);
-      if (!swFailures.length) {
-        const {failures, warnings} = WebappInstallBanner.assessOfflineStartUrl(artifacts);
-        offlineFailures = failures;
-        offlineWarnings = warnings;
-      }
+    const manifestValues = await ManifestValues.request(context, artifacts.Manifest);
+    const manifestFailures = WebappInstallBanner.assessManifest(manifestValues);
+    const swFailures = WebappInstallBanner.assessServiceWorker(artifacts);
+    if (!swFailures.length) {
+      const {failures, warnings} = WebappInstallBanner.assessOfflineStartUrl(artifacts);
+      offlineFailures = failures;
+      offlineWarnings = warnings;
+    }
 
-      return {
-        warnings: offlineWarnings,
-        failures: [
-          ...manifestFailures,
-          ...swFailures,
-          ...offlineFailures,
-        ],
-        manifestValues,
-      };
-    });
+    return {
+      warnings: offlineWarnings,
+      failures: [
+        ...manifestFailures,
+        ...swFailures,
+        ...offlineFailures,
+      ],
+      manifestValues,
+    };
   }
 }
 

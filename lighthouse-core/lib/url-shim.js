@@ -17,6 +17,17 @@ const Util = require('../report/html/renderer/util.js');
 const URL = /** @type {!Window["URL"]} */ (typeof self !== 'undefined' && self.URL) ||
     require('url').URL;
 
+// 25 most used tld plus one domains from http archive.
+// @see https://github.com/GoogleChrome/lighthouse/pull/5065#discussion_r191926212
+const listOfTlds = [
+  'com', 'co', 'gov', 'edu', 'ac', 'org', 'go', 'gob', 'or', 'net', 'in', 'ne', 'nic', 'gouv',
+  'web', 'spb', 'blog', 'jus', 'kiev', 'mil', 'wi', 'qc', 'ca', 'bel', 'on',
+];
+
+const allowedProtocols = [
+  'https:', 'http:', 'chrome:',
+];
+
 /**
  * There is fancy URL rewriting logic for the chrome://settings page that we need to work around.
  * Why? Special handling was added by Chrome team to allow a pushState transition between chrome:// pages.
@@ -88,6 +99,54 @@ class URLShim extends URL {
   }
 
   /**
+   * Gets the tld of a domain
+   *
+   * @param {string} hostname
+   * @return {string} tld
+   */
+  static getTld(hostname) {
+    const tlds = hostname.split('.').slice(-2);
+
+    if (!listOfTlds.includes(tlds[0])) {
+      return `.${tlds[tlds.length - 1]}`;
+    }
+
+    return `.${tlds.join('.')}`;
+  }
+
+  /**
+   * Check if rootDomains matches
+   *
+   * @param {string} urlA
+   * @param {string} urlB
+   */
+  static rootDomainsMatch(urlA, urlB) {
+    let urlAInfo;
+    let urlBInfo;
+    try {
+      urlAInfo = new URL(urlA);
+      urlBInfo = new URL(urlB);
+    } catch (err) {
+      return false;
+    }
+
+    if (!urlAInfo.hostname || !urlBInfo.hostname) {
+      return false;
+    }
+
+    const tldA = URLShim.getTld(urlAInfo.hostname);
+    const tldB = URLShim.getTld(urlBInfo.hostname);
+
+    // get the string before the tld
+    const urlARootDomain = urlAInfo.hostname.replace(new RegExp(`${tldA}$`), '')
+      .split('.').splice(-1)[0];
+    const urlBRootDomain = urlBInfo.hostname.replace(new RegExp(`${tldB}$`), '')
+      .split('.').splice(-1)[0];
+
+    return urlARootDomain === urlBRootDomain;
+  }
+
+  /**
    * @param {string} url
    * @param {{numPathParts: number, preserveQuery: boolean, preserveHost: boolean}=} options
    * @return {string}
@@ -130,11 +189,27 @@ class URLShim extends URL {
       return false;
     }
   }
+
+  /**
+   * Determine if the url has a protocol that we're able to test
+   * @param {string} url
+   * @return {boolean}
+   */
+  static isProtocolAllowed(url) {
+    try {
+      const parsed = new URL(url);
+      return allowedProtocols.includes(parsed.protocol);
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 URLShim.URL = URL;
 URLShim.URLSearchParams = (typeof self !== 'undefined' && self.URLSearchParams) ||
     require('url').URLSearchParams;
+
+URLShim.NON_NETWORK_PROTOCOLS = ['blob', 'data'];
 
 URLShim.INVALID_URL_DEBUG_STRING =
     'Lighthouse was unable to determine the URL of some script executions. ' +

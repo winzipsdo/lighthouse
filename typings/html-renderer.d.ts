@@ -12,6 +12,7 @@ import _PerformanceCategoryRenderer = require('../lighthouse-core/report/html/re
 import _ReportRenderer = require('../lighthouse-core/report/html/renderer/report-renderer.js');
 import _ReportUIFeatures = require('../lighthouse-core/report/html/renderer/report-ui-features.js');
 import _Util = require('../lighthouse-core/report/html/renderer/util.js');
+import _prepareLabData = require('../lighthouse-core/report/html/renderer/psi.js');
 import _FileNamer = require('../lighthouse-core/lib/file-namer.js');
 
 declare global {
@@ -24,6 +25,7 @@ declare global {
   var ReportRenderer: typeof _ReportRenderer;
   var ReportUIFeatures: typeof _ReportUIFeatures;
   var Util: typeof _Util;
+  var prepareLabData: typeof _prepareLabData;
 
   interface Window {
     CategoryRenderer: typeof _CategoryRenderer;
@@ -34,6 +36,25 @@ declare global {
     ReportRenderer: typeof _ReportRenderer;
     ReportUIFeatures: typeof _ReportUIFeatures;
     Util: typeof _Util;
+    prepareLabData: typeof _prepareLabData;
+  }
+
+  module LH {
+    // During report generation, the LHR object is transformed a bit for convenience
+    // Primarily, the auditResult is added as .result onto the auditRef.
+    // Also: a reportCategories property is added. We're lazy sometimes. It'll be removed in due time.
+    export interface ReportResult extends Result {
+      categories: Record<string, ReportResult.Category>;
+      reportCategories: Array<ReportResult.Category>;
+    }
+    export module ReportResult {
+      export interface Category extends Result.Category {
+        auditRefs: Array<AuditRef>
+      }
+      export interface AuditRef extends Result.AuditRef {
+        result: Audit.Result
+      }
+    }
   }
 }
 

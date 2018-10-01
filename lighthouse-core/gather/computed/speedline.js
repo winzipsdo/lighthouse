@@ -6,8 +6,8 @@
 'use strict';
 
 const ComputedArtifact = require('./computed-artifact');
-const speedline = require('speedline');
-const LHError = require('../../lib/errors');
+const speedline = require('speedline-core');
+const LHError = require('../../lib/lh-error');
 
 class Speedline extends ComputedArtifact {
   get name() {

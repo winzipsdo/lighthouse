@@ -10,7 +10,7 @@
 'use strict';
 
 const Gatherer = require('./gatherer');
-const DOMHelpers = require('../../lib/dom-helpers.js');
+const pageFunctions = require('../../lib/page-functions.js');
 const Driver = require('../driver.js'); // eslint-disable-line no-unused-vars
 
 /* global window, getElementsInDocument, Image */
@@ -146,14 +146,14 @@ class ImageUsage extends Gatherer {
   async afterPass(passContext, loadData) {
     const driver = passContext.driver;
     const indexedNetworkRecords = loadData.networkRecords.reduce((map, record) => {
-      if (/^image/.test(record._mimeType) && record.finished) {
-        map[record._url] = {
+      if (/^image/.test(record.mimeType) && record.finished) {
+        map[record.url] = {
           url: record.url,
-          resourceSize: Math.min(record._resourceSize || 0, record.transferSize),
+          resourceSize: Math.min(record.resourceSize || 0, record.transferSize),
           startTime: record.startTime,
           endTime: record.endTime,
-          responseReceivedTime: record._responseReceivedTime,
-          mimeType: record._mimeType,
+          responseReceivedTime: record.responseReceivedTime,
+          mimeType: record.mimeType,
         };
       }
 
@@ -161,7 +161,7 @@ class ImageUsage extends Gatherer {
     }, /** @type {Object<string, LH.Artifacts.SingleImageUsage['networkRecord']>} */ ({}));
 
     const expression = `(function() {
-      ${DOMHelpers.getElementsInDocumentFnString}; // define function on page
+      ${pageFunctions.getElementsInDocumentString}; // define function on page
       return (${collectImageElementInfo.toString()})();
     })()`;
 

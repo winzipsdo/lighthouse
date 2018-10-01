@@ -6,9 +6,10 @@
 'use strict';
 
 const MetricArtifact = require('./lantern-metric');
-const Node = require('../../../lib/dependency-graph/node');
-const CPUNode = require('../../../lib/dependency-graph/cpu-node'); // eslint-disable-line no-unused-vars
-const NetworkNode = require('../../../lib/dependency-graph/network-node'); // eslint-disable-line no-unused-vars
+const BaseNode = require('../../../lib/dependency-graph/base-node');
+const LHError = require('../../../lib/lh-error');
+
+/** @typedef {BaseNode.Node} Node */
 
 class FirstMeaningfulPaint extends MetricArtifact {
   get name() {
@@ -20,9 +21,9 @@ class FirstMeaningfulPaint extends MetricArtifact {
    */
   get COEFFICIENTS() {
     return {
-      intercept: 900,
-      optimistic: 0.45,
-      pessimistic: 0.6,
+      intercept: 0,
+      optimistic: 0.5,
+      pessimistic: 0.5,
     };
   }
 
@@ -33,6 +34,10 @@ class FirstMeaningfulPaint extends MetricArtifact {
    */
   getOptimisticGraph(dependencyGraph, traceOfTab) {
     const fmp = traceOfTab.timestamps.firstMeaningfulPaint;
+    if (!fmp) {
+      throw new LHError(LHError.errors.NO_FMP);
+    }
+
     const blockingScriptUrls = MetricArtifact.getScriptUrls(dependencyGraph, node => {
       return (
         node.endTime <= fmp && node.hasRenderBlockingPriority() && node.initiatorType !== 'script'
@@ -42,13 +47,12 @@ class FirstMeaningfulPaint extends MetricArtifact {
     return dependencyGraph.cloneWithRelationships(node => {
       if (node.endTime > fmp && !node.isMainDocument()) return false;
       // Include EvaluateScript tasks for blocking scripts
-      if (node.type === Node.TYPES.CPU) {
-        return /** @type {CPUNode} */ (node).isEvaluateScriptFor(blockingScriptUrls);
+      if (node.type === BaseNode.TYPES.CPU) {
+        return node.isEvaluateScriptFor(blockingScriptUrls);
       }
 
-      const asNetworkNode = /** @type {NetworkNode} */ (node);
       // Include non-script-initiated network requests with a render-blocking priority
-      return asNetworkNode.hasRenderBlockingPriority() && asNetworkNode.initiatorType !== 'script';
+      return node.hasRenderBlockingPriority() && node.initiatorType !== 'script';
     });
   }
 
@@ -59,6 +63,10 @@ class FirstMeaningfulPaint extends MetricArtifact {
    */
   getPessimisticGraph(dependencyGraph, traceOfTab) {
     const fmp = traceOfTab.timestamps.firstMeaningfulPaint;
+    if (!fmp) {
+      throw new LHError(LHError.errors.NO_FMP);
+    }
+
     const requiredScriptUrls = MetricArtifact.getScriptUrls(dependencyGraph, node => {
       return node.endTime <= fmp && node.hasRenderBlockingPriority();
     });
@@ -67,13 +75,12 @@ class FirstMeaningfulPaint extends MetricArtifact {
       if (node.endTime > fmp && !node.isMainDocument()) return false;
 
       // Include CPU tasks that performed a layout or were evaluations of required scripts
-      if (node.type === Node.TYPES.CPU) {
-        const asCpuNode = /** @type {CPUNode} */ (node);
-        return asCpuNode.didPerformLayout() || asCpuNode.isEvaluateScriptFor(requiredScriptUrls);
+      if (node.type === BaseNode.TYPES.CPU) {
+        return node.didPerformLayout() || node.isEvaluateScriptFor(requiredScriptUrls);
       }
 
       // Include all network requests that had render-blocking priority (even script-initiated)
-      return /** @type {NetworkNode} */ (node).hasRenderBlockingPriority();
+      return node.hasRenderBlockingPriority();
     });
   }
 

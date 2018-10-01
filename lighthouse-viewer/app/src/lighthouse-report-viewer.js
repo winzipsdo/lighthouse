@@ -7,8 +7,6 @@
 
 /* global DOM, ViewerUIFeatures, ReportRenderer, DragAndDrop, GithubApi, logger, idbKeyval */
 
-/** @typedef {import('../../../lighthouse-core/report/html/renderer/report-renderer.js').ReportJSON} ReportJSON */
-
 /**
  * Guaranteed context.querySelector. Always returns an element or throws if
  * nothing matches query.
@@ -58,7 +56,6 @@ class LighthouseReportViewer {
    * @private
    */
   _addEventListeners() {
-    // @ts-ignore - tsc thinks document can't listen for `paste`
     document.addEventListener('paste', this._onPaste);
 
     const gistUrlInput = find('.js-gist-url', document);
@@ -109,7 +106,7 @@ class LighthouseReportViewer {
 
   /**
    * Basic Lighthouse report JSON validation.
-   * @param {ReportJSON} reportJson
+   * @param {LH.ReportResult} reportJson
    * @private
    */
   _validateReportJson(reportJson) {
@@ -135,7 +132,7 @@ class LighthouseReportViewer {
   }
 
   /**
-   * @param {ReportJSON} json
+   * @param {LH.ReportResult} json
    * @private
    */
   _replaceReportHtml(json) {
@@ -158,7 +155,7 @@ class LighthouseReportViewer {
       let saveCallback = null;
       if (!this._reportIsFromGist) {
         saveCallback = this._onSaveJson;
-        history.pushState({}, undefined, LighthouseReportViewer.APP_URL);
+        history.pushState({}, '', LighthouseReportViewer.APP_URL);
       }
 
       const features = new ViewerUIFeatures(dom, saveCallback);
@@ -204,7 +201,7 @@ class LighthouseReportViewer {
 
   /**
    * Stores v2.x report in IDB, then navigates to legacy viewer in current tab
-   * @param {ReportJSON} reportJson
+   * @param {LH.ReportResult} reportJson
    * @private
    */
   _loadInLegacyViewerVersion(reportJson) {
@@ -228,7 +225,13 @@ class LighthouseReportViewer {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = function(e) {
-        resolve(e.target && e.target.result);
+        const readerTarget = /** @type {?FileReader} */ (e.target);
+        const result = /** @type {?string} */ (readerTarget && readerTarget.result);
+        if (!result) {
+          reject('Could not read file');
+          return;
+        }
+        resolve(result);
       };
       reader.onerror = reject;
       reader.readAsText(file);
@@ -237,7 +240,7 @@ class LighthouseReportViewer {
 
   /**
    * Saves the current report by creating a gist on GitHub.
-   * @param {ReportJSON} reportJson
+   * @param {LH.ReportResult} reportJson
    * @return {Promise<string|void>} id of the created gist.
    * @private
    */
@@ -253,7 +256,7 @@ class LighthouseReportViewer {
       }
 
       this._reportIsFromGist = true;
-      history.pushState({}, undefined, `${LighthouseReportViewer.APP_URL}?gist=${id}`);
+      history.pushState({}, '', `${LighthouseReportViewer.APP_URL}?gist=${id}`);
 
       return id;
     }).catch(err => logger.log(err.message));
@@ -331,7 +334,7 @@ class LighthouseReportViewer {
 
       const match = url.pathname.match(/[a-f0-9]{5,}/);
       if (match) {
-        history.pushState({}, undefined, `${LighthouseReportViewer.APP_URL}?gist=${match[0]}`);
+        history.pushState({}, '', `${LighthouseReportViewer.APP_URL}?gist=${match[0]}`);
         this._loadFromDeepLink();
       }
     } catch (err) {
@@ -365,7 +368,7 @@ class LighthouseReportViewer {
   }
 }
 
-// @ts-ignore - node export for testing.
+// node export for testing.
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = LighthouseReportViewer;
 }

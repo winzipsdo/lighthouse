@@ -5,20 +5,16 @@
  */
 'use strict';
 
-const ComputedArtifact = require('./computed-artifact');
+const makeComputedArtifact = require('./new-computed-artifact');
 const icons = require('../../lib/icons');
 
 const PWA_DISPLAY_VALUES = ['minimal-ui', 'fullscreen', 'standalone'];
 
 // Historically, Chrome recommended 12 chars as the maximum short_name length to prevent truncation.
-// See #69 for more discussion & https://developer.chrome.com/apps/manifest/name#short_name
+// For more discussion, see https://github.com/GoogleChrome/lighthouse/issues/69 and https://developer.chrome.com/apps/manifest/name#short_name
 const SUGGESTED_SHORTNAME_LENGTH = 12;
 
-class ManifestValues extends ComputedArtifact {
-  get name() {
-    return 'ManifestValues';
-  }
-
+class ManifestValues {
   static get validityIds() {
     return ['hasManifest', 'hasParseableManifest'];
   }
@@ -26,7 +22,7 @@ class ManifestValues extends ComputedArtifact {
   /** @typedef {(val: NonNullable<LH.Artifacts.Manifest['value']>) => boolean} Validator */
 
   /**
-   * @return {Array<{id: string, failureText: string, validate: Validator}>}
+   * @return {Array<{id: LH.Artifacts.ManifestValueCheckID, failureText: string, validate: Validator}>}
    */
   static get manifestChecks() {
     return [
@@ -37,15 +33,15 @@ class ManifestValues extends ComputedArtifact {
       },
       {
         id: 'hasIconsAtLeast192px',
-        failureText: 'Manifest does not have icons at least 192px',
+        failureText: 'Manifest does not have a PNG icon of at least 192px',
         validate: manifestValue => icons.doExist(manifestValue) &&
-            icons.sizeAtLeast(192, manifestValue).length > 0,
+            icons.pngSizedAtLeast(192, manifestValue).length > 0,
       },
       {
         id: 'hasIconsAtLeast512px',
-        failureText: 'Manifest does not have icons at least 512px',
+        failureText: 'Manifest does not have a PNG icon of at least 512px',
         validate: manifestValue => icons.doExist(manifestValue) &&
-            icons.sizeAtLeast(512, manifestValue).length > 0,
+            icons.pngSizedAtLeast(512, manifestValue).length > 0,
       },
       {
         id: 'hasPWADisplayValue',
@@ -69,7 +65,9 @@ class ManifestValues extends ComputedArtifact {
       },
       {
         id: 'shortNameLength',
-        failureText: 'Manifest `short_name` will be truncated when displayed on the homescreen',
+        failureText: `Manifest's \`short_name\` is too long (>${SUGGESTED_SHORTNAME_LENGTH} ` +
+          `characters) to be displayed on a homescreen without truncation`,
+        // Pass if there's no short_name. Don't want to report a non-existent string is too long
         validate: manifestValue => !!manifestValue.short_name.value &&
             manifestValue.short_name.value.length <= SUGGESTED_SHORTNAME_LENGTH,
       },
@@ -86,7 +84,7 @@ class ManifestValues extends ComputedArtifact {
    * @param {LH.Artifacts['Manifest']} manifest
    * @return {Promise<LH.Artifacts.ManifestValues>}
    */
-  async compute_(manifest) {
+  static async compute_(manifest) {
     // if the manifest isn't there or is invalid json, we report that and bail
     let parseFailureReason;
 
@@ -123,4 +121,4 @@ class ManifestValues extends ComputedArtifact {
   }
 }
 
-module.exports = ManifestValues;
+module.exports = makeComputedArtifact(ManifestValues);

@@ -6,7 +6,7 @@
 'use strict';
 
 const Audit = require('./audit');
-const LHError = require('../lib/errors');
+const LHError = require('../lib/lh-error');
 const jpeg = require('jpeg-js');
 
 const NUMBER_OF_THUMBNAILS = 10;
@@ -20,10 +20,10 @@ class ScreenshotThumbnails extends Audit {
    */
   static get meta() {
     return {
-      name: 'screenshot-thumbnails',
+      id: 'screenshot-thumbnails',
       scoreDisplayMode: Audit.SCORING_MODES.INFORMATIVE,
-      description: 'Screenshot Thumbnails',
-      helpText: 'This is what the load of your site looked like.',
+      title: 'Screenshot Thumbnails',
+      description: 'This is what the load of your site looked like.',
       requiredArtifacts: ['traces', 'devtoolsLogs'],
     };
   }
@@ -114,14 +114,15 @@ class ScreenshotThumbnails extends Audit {
           }
         });
       }
-
-      const imageData = frameForTimestamp.getParsedImage();
-      const thumbnailImageData = ScreenshotThumbnails.scaleImageToThumbnail(imageData);
-      const base64Data =
-        cachedThumbnails.get(frameForTimestamp) ||
-        jpeg.encode(thumbnailImageData, 90).data.toString('base64');
-
-      cachedThumbnails.set(frameForTimestamp, base64Data);
+      let base64Data;
+      if (cachedThumbnails.has(frameForTimestamp)) {
+        base64Data = cachedThumbnails.get(frameForTimestamp);
+      } else {
+        const imageData = frameForTimestamp.getParsedImage();
+        const thumbnailImageData = ScreenshotThumbnails.scaleImageToThumbnail(imageData);
+        base64Data = jpeg.encode(thumbnailImageData, 90).data.toString('base64');
+        cachedThumbnails.set(frameForTimestamp, base64Data);
+      }
       thumbnails.push({
         timing: Math.round(targetTimestamp - speedline.beginning),
         timestamp: targetTimestamp * 1000,

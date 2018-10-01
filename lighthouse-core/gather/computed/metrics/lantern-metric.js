@@ -6,10 +6,12 @@
 'use strict';
 
 const ComputedArtifact = require('../computed-artifact');
-const Node = require('../../../lib/dependency-graph/node');
-const NetworkNode = require('../../../lib/dependency-graph/network-node'); // eslint-disable-line no-unused-vars
-const Simulator = require('../../../lib/dependency-graph/simulator/simulator'); // eslint-disable-line no-unused-vars
-const WebInspector = require('../../../lib/web-inspector');
+const BaseNode = require('../../../lib/dependency-graph/base-node');
+const NetworkRequest = require('../../../lib/network-request');
+
+/** @typedef {BaseNode.Node} Node */
+/** @typedef {import('../../../lib/dependency-graph/network-node')} NetworkNode */
+/** @typedef {import('../../../lib/dependency-graph/simulator/simulator')} Simulator */
 
 class LanternMetricArtifact extends ComputedArtifact {
   /**
@@ -18,14 +20,14 @@ class LanternMetricArtifact extends ComputedArtifact {
    * @return {Set<string>}
    */
   static getScriptUrls(dependencyGraph, condition) {
+    /** @type {Set<string>} */
     const scriptUrls = new Set();
 
     dependencyGraph.traverse(node => {
-      if (node.type === Node.TYPES.CPU) return;
-      const asNetworkNode = /** @type {NetworkNode} */ (node);
-      if (asNetworkNode.record._resourceType !== WebInspector.resourceTypes.Script) return;
-      if (condition && !condition(asNetworkNode)) return;
-      scriptUrls.add(asNetworkNode.record.url);
+      if (node.type === BaseNode.TYPES.CPU) return;
+      if (node.record.resourceType !== NetworkRequest.TYPES.Script) return;
+      if (condition && !condition(node)) return;
+      scriptUrls.add(node.record.url);
     });
 
     return scriptUrls;
@@ -73,6 +75,7 @@ class LanternMetricArtifact extends ComputedArtifact {
    */
   async computeMetricWithGraphs(data, artifacts, extras) {
     const {trace, devtoolsLog, settings} = data;
+    const metricName = this.name.replace('Lantern', '');
     const graph = await artifacts.requestPageDependencyGraph({trace, devtoolsLog});
     const traceOfTab = await artifacts.requestTraceOfTab(trace);
     /** @type {Simulator} */
@@ -82,9 +85,15 @@ class LanternMetricArtifact extends ComputedArtifact {
     const optimisticGraph = this.getOptimisticGraph(graph, traceOfTab);
     const pessimisticGraph = this.getPessimisticGraph(graph, traceOfTab);
 
-    const optimisticSimulation = simulator.simulate(optimisticGraph);
-    const optimisticFlexSimulation = simulator.simulate(optimisticGraph, {flexibleOrdering: true});
-    const pessimisticSimulation = simulator.simulate(pessimisticGraph);
+    /** @type {{flexibleOrdering?: boolean, label?: string}} */
+    let simulateOptions = {label: `optimistic${metricName}`};
+    const optimisticSimulation = simulator.simulate(optimisticGraph, simulateOptions);
+
+    simulateOptions = {label: `optimisticFlex${metricName}`, flexibleOrdering: true};
+    const optimisticFlexSimulation = simulator.simulate(optimisticGraph, simulateOptions);
+
+    simulateOptions = {label: `pessimistic${metricName}`};
+    const pessimisticSimulation = simulator.simulate(pessimisticGraph, simulateOptions);
 
     const optimisticEstimate = this.getEstimateFromSimulation(
       optimisticSimulation.timeInMs < optimisticFlexSimulation.timeInMs ?

@@ -14,10 +14,12 @@ const Audit = require('./audit');
 class MultiCheckAudit extends Audit {
   /**
    * @param {LH.Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {Promise<LH.Audit.Product>}
    */
-  static audit(artifacts) {
-    return Promise.resolve(this.audit_(artifacts)).then(result => this.createAuditProduct(result));
+  static async audit(artifacts, context) {
+    const multiProduct = await this.audit_(artifacts, context);
+    return this.createAuditProduct(multiProduct);
   }
 
   /**
@@ -25,23 +27,36 @@ class MultiCheckAudit extends Audit {
    * @return {LH.Audit.Product}
    */
   static createAuditProduct(result) {
-    const extendedInfo = {
-      value: result,
+    /** @type {LH.Audit.MultiCheckAuditDetails} */
+    const detailsItem = {
+      ...result,
+      ...result.manifestValues,
+      manifestValues: undefined,
+      warnings: undefined,
+      allChecks: undefined,
     };
+
+    if (result.manifestValues && result.manifestValues.allChecks) {
+      result.manifestValues.allChecks.forEach(check => {
+        detailsItem[check.id] = check.passing;
+      });
+    }
+
+    const details = {items: [detailsItem]};
 
     // If we fail, share the failures
     if (result.failures.length > 0) {
       return {
         rawValue: false,
         explanation: `Failures: ${result.failures.join(',\n')}.`,
-        extendedInfo,
+        details,
       };
     }
 
     // Otherwise, we pass
     return {
       rawValue: true,
-      extendedInfo,
+      details,
       warnings: result.warnings,
     };
   }
@@ -50,9 +65,10 @@ class MultiCheckAudit extends Audit {
 
   /**
    * @param {LH.Artifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {Promise<{failures: Array<string>, warnings?: Array<string>, manifestValues?: LH.Artifacts.ManifestValues}>}
    */
-  static audit_(artifacts) {
+  static audit_(artifacts, context) {
     throw new Error('audit_ unimplemented');
   }
 

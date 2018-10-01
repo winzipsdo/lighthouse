@@ -94,7 +94,7 @@ connection.sendCommand = function(command, params) {
   }
 };
 
-/* eslint-env mocha */
+/* eslint-env jest */
 
 describe('Browser Driver', () => {
   beforeEach(() => {
@@ -145,7 +145,7 @@ describe('Browser Driver', () => {
   });
 
   it('throws if getRequestContent takes too long', () => {
-    return driverStub.getRequestContent(0, MAX_WAIT_FOR_PROTOCOL).then(_ => {
+    return driverStub.getRequestContent('', MAX_WAIT_FOR_PROTOCOL).then(_ => {
       assert.ok(false, 'long-running getRequestContent supposed to reject');
     }, e => {
       assert.equal(e.code, 'REQUEST_CONTENT_TIMEOUT');
@@ -220,21 +220,6 @@ describe('Browser Driver', () => {
 
     return driver.gotoURL(startUrl, loadOptions).then(loadedUrl => {
       assert.equal(loadedUrl, finalUrl);
-    });
-  });
-
-  it('waits for tracingComplete when tracing already started', () => {
-    const fakeConnection = new Connection();
-    const fakeDriver = new Driver(fakeConnection);
-    const commands = [];
-    fakeConnection.sendCommand = evt => {
-      commands.push(evt);
-      return Promise.resolve();
-    };
-
-    fakeDriver.once = createOnceStub({'Tracing.tracingComplete': {}});
-    return fakeDriver.beginTrace().then(() => {
-      assert.deepEqual(commands, ['Page.enable', 'Tracing.end', 'Tracing.start']);
     });
   });
 

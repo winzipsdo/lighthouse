@@ -8,13 +8,12 @@
 /* eslint-disable max-len */
 
 const yargs = require('yargs');
-// @ts-ignore
 const pkg = require('../package.json');
 const printer = require('./printer');
 
 /**
  * @param {string=} manualArgv
- * @return {!LH.Flags}
+ * @return {LH.CliFlags}
  */
 function getFlags(manualArgv) {
   // @ts-ignore yargs() is incorrectly typed as not returning itself
@@ -57,19 +56,22 @@ function getFlags(manualArgv) {
 
       .group(
         [
-          'save-assets', 'list-all-audits', 'list-trace-categories', 'additional-trace-categories',
-          'config-path', 'preset', 'chrome-flags', 'port', 'hostname',
+          'save-assets', 'list-all-audits', 'list-trace-categories', 'print-config', 'additional-trace-categories',
+          'config-path', 'preset', 'chrome-flags', 'port', 'hostname', 'emulated-form-factor',
           'max-wait-for-load', 'enable-error-reporting', 'gather-mode', 'audit-mode',
           'only-audits', 'only-categories', 'skip-audits',
         ],
         'Configuration:')
       .describe({
+        // We don't allowlist specific locales. Why? So we can support the user who requests 'es-MX' (unsupported) and we'll fall back to 'es' (supported)
+        'locale': 'The locale/language the report should be formatted in',
         'enable-error-reporting':
             'Enables error reporting, overriding any saved preference. --no-enable-error-reporting will do the opposite. More: https://git.io/vFFTO',
         'blocked-url-patterns': 'Block any network requests to the specified URL patterns',
         'disable-storage-reset':
             'Disable clearing the browser cache and other storage APIs before a run',
-        'disable-device-emulation': 'Disable Nexus 5X emulation',
+        'disable-device-emulation': 'Disable all device form factor emulation. Deprecated: use --emulated-form-factor=none instead',
+        'emulated-form-factor': 'Controls the emulated device form factor (mobile vs. desktop) if not disabled',
         'throttling-method': 'Controls throttling method',
         'throttling.rttMs': 'Controls simulated network RTT (TCP layer)',
         'throttling.throughputKbps': 'Controls simulated network download throughput',
@@ -89,7 +91,7 @@ function getFlags(manualArgv) {
         'preset': 'Use a built-in configuration.',
         'chrome-flags':
             `Custom flags to pass to Chrome (space-delimited). For a full list of flags, see http://bit.ly/chrome-flags
-            Additionally, use the CHROME_PATH environment variable to use a specific Chrome binary. Requires Chromium version 54.0 or later. If omitted, any detected Chrome Canary or Chrome stable will be used.`,
+            Additionally, use the CHROME_PATH environment variable to use a specific Chrome binary. Requires Chromium version 66.0 or later. If omitted, any detected Chrome Canary or Chrome stable will be used.`,
         'hostname': 'The hostname to use for the debugging protocol.',
         'port': 'The port to use for the debugging protocol. Use 0 for a random port',
         'max-wait-for-load':
@@ -98,6 +100,7 @@ function getFlags(manualArgv) {
         'only-audits': 'Only run the specified audits',
         'only-categories': 'Only run the specified categories',
         'skip-audits': 'Run everything except these audits',
+        'print-config': 'Print the normalized config for the given config and options, then exit.',
       })
       // set aliases
       .alias({'gather-mode': 'G', 'audit-mode': 'A'})
@@ -116,9 +119,10 @@ function getFlags(manualArgv) {
       // boolean values
       .boolean([
         'disable-storage-reset', 'disable-device-emulation', 'save-assets', 'list-all-audits',
-        'list-trace-categories', 'view', 'verbose', 'quiet', 'help',
+        'list-trace-categories', 'view', 'verbose', 'quiet', 'help', 'print-config',
       ])
       .choices('output', printer.getValidOutputOptions())
+      .choices('emulated-form-factor', ['mobile', 'desktop', 'none'])
       .choices('throttling-method', ['devtools', 'provided', 'simulate'])
       .choices('preset', ['full', 'perf', 'mixed-content'])
       // force as an array
@@ -133,16 +137,25 @@ function getFlags(manualArgv) {
       // default values
       .default('chrome-flags', '')
       .default('output', ['html'])
+      .default('emulated-form-factor', 'mobile')
       .default('port', 0)
       .default('hostname', 'localhost')
-      .check(/** @param {!LH.Flags} argv */ (argv) => {
-        // Make sure lighthouse has been passed a url, or at least one of --list-all-audits
-        // or --list-trace-categories. If not, stop the program and ask for a url
-        if (!argv.listAllAudits && !argv.listTraceCategories && argv._.length === 0) {
-          throw new Error('Please provide a url');
+      .default('enable-error-reporting', undefined) // Undefined so prompted by default
+      .check(/** @param {LH.CliFlags} argv */ (argv) => {
+        // Lighthouse doesn't need a URL if...
+        //   - We're just listing the available options.
+        //   - We're just printing the config.
+        //   - We're in auditMode (and we have artifacts already)
+        // If one of these don't apply, if no URL, stop the program and ask for one.
+        const isPrintSomethingMode = argv.listAllAudits || argv.listTraceCategories || argv.printConfig;
+        const isOnlyAuditMode = !!argv.auditMode && !argv.gatherMode;
+        if (isPrintSomethingMode || isOnlyAuditMode) {
+          return true;
+        } else if (argv._.length > 0) {
+          return true;
         }
 
-        return true;
+        throw new Error('Please provide a url');
       })
       .epilogue(
           'For more information on Lighthouse, see https://developers.google.com/web/tools/lighthouse/.')

@@ -208,46 +208,13 @@ function websqlTest() {
   const db = openDatabase('mydb', '1.0', 'my first database', 1024);
 }
 
-function mutationEvenTest() {
-  // FAIL
-  document.addEventListener('DOMNodeInserted', function(e) {
-    console.log('DOMNodeInserted');
-  });
-
-  // FAIL
-  document.addEventListener('DOMNodeRemoved', function(e) {
-    console.log('DOMNodeRemoved');
-  });
-
-  // FAIL
-  document.body.addEventListener('DOMNodeInserted', function(e) {
-    console.log('DOMNodeInserted');
-  });
-
-  // FAIL
-  const el = document.querySelector('#touchmove-section');
-  el.addEventListener('DOMNodeInserted', function(e) {
-    console.log('DOMNodeInserted on element');
-  });
-
-  // FAIL
-  window.addEventListener('DOMNodeInserted', function(e) {
-    console.log('DOMNodeInserted');
-  });
-
-  // PASS - not MutationEvents
-  window.addEventListener('DOMContentLoaded', function(e) {
-    console.log('DOMContentLoaded');
-  });
-}
-
 function passiveEventsListenerTest() {
-  // FAIL
+  // FAIL or PASS - field trial for document level defaulting to passive M71+
   window.addEventListener('wheel', function(e) {
     console.log('wheel');
   });
 
-  // FAIL
+  // PASS - document level defaults to passive M56+
   window.addEventListener('touchstart', function(e) {
     console.log('touchstart');
   });
@@ -257,12 +224,12 @@ function passiveEventsListenerTest() {
     console.log('mousewheel');
   }, {passive: false});
 
-  // FAIL
+  // PASS - document level defaults to passive M56+
   document.addEventListener('touchstart', function(e) {
     console.log('touchstart document');
   });
 
-  // FAIL
+  // PASS - document level defaults to passive M56+
   document.body.addEventListener('touchmove', function(e) {
     console.log('touchmove');
   });
@@ -335,18 +302,13 @@ function deprecationsTest() {
 
   // TODO: some deprecated API messages are not currently being logged correctly.
   // See: https://crbug.com/680832
-  try {
-    MediaStreamTrack.getSources(); // Should eventually FAIL
-  } catch(e) {}
-
-  console.timeline(); // Should eventually FAIL
 
   // FAIL
   const xhr = new XMLHttpRequest();
   xhr.open('GET', 'dbw_tester.html', false);
   xhr.send();
 
-  window.webkitStorageInfo.PERSISTENT // FAIL
+  // One more failure in dbw_tester.js
 }
 
 function isOnHttps() {
@@ -364,7 +326,6 @@ if (location.search === '') {
   dateNowTest();
   consoleTimeTest();
   websqlTest();
-  mutationEvenTest();
   passiveEventsListenerTest();
   geolocationOnStartTest();
   notificationOnStartTest();
@@ -386,9 +347,6 @@ if (location.search === '') {
   }
   if (params.has('websql')) {
     websqlTest();
-  }
-  if (params.has('mutationEvents')) {
-    mutationEvenTest();
   }
   if (params.has('passiveEvents')) {
     passiveEventsListenerTest();

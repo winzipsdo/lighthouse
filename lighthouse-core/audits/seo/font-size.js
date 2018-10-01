@@ -6,13 +6,10 @@
 'use strict';
 
 /** @typedef {LH.Artifacts.FontSize['analyzedFailingNodesData'][0]} FailingNodeData */
-/** @typedef {{Type: {Regular: 'Regular', Inline: 'Inline', Attributes: 'Attributes'}}} WebInspectorCSSStyle */
 
 const URL = require('../../lib/url-shim');
 const Audit = require('../audit');
 const ViewportAudit = require('../viewport');
-const WebInspector = require('../../lib/web-inspector');
-const CSSStyleDeclaration = /** @type {WebInspectorCSSStyle} */ (WebInspector.CSSStyleDeclaration);
 const MINIMAL_PERCENTAGE_OF_LEGIBLE_TEXT = 60;
 
 /**
@@ -107,8 +104,8 @@ function nodeToTableNode(node) {
 function findStyleRuleSource(baseURL, styleDeclaration, node) {
   if (
     !styleDeclaration ||
-    styleDeclaration.type === CSSStyleDeclaration.Type.Attributes ||
-    styleDeclaration.type === CSSStyleDeclaration.Type.Inline
+    styleDeclaration.type === 'Attributes' ||
+    styleDeclaration.type === 'Inline'
   ) {
     return {
       selector: nodeToTableNode(node),
@@ -124,7 +121,7 @@ function findStyleRuleSource(baseURL, styleDeclaration, node) {
     };
   }
 
-  if (styleDeclaration.type === CSSStyleDeclaration.Type.Regular && styleDeclaration.parentRule) {
+  if (styleDeclaration.type === 'Regular' && styleDeclaration.parentRule) {
     const rule = styleDeclaration.parentRule;
     const stylesheet = styleDeclaration.stylesheet;
 
@@ -169,7 +166,7 @@ function findStyleRuleSource(baseURL, styleDeclaration, node) {
  * @return {string}
  */
 function getFontArtifactId(styleDeclaration, node) {
-  if (styleDeclaration && styleDeclaration.type === CSSStyleDeclaration.Type.Regular) {
+  if (styleDeclaration && styleDeclaration.type === 'Regular') {
     const startLine = styleDeclaration.range ? styleDeclaration.range.startLine : 0;
     const startColumn = styleDeclaration.range ? styleDeclaration.range.startColumn : 0;
     return `${styleDeclaration.styleSheetId}@${startLine}:${startColumn}`;
@@ -184,10 +181,10 @@ class FontSize extends Audit {
    */
   static get meta() {
     return {
-      name: 'font-size',
-      description: 'Document uses legible font sizes',
-      failureDescription: 'Document doesn\'t use legible font sizes',
-      helpText: 'Font sizes less than 12px are too small to be legible and require mobile ' +
+      id: 'font-size',
+      title: 'Document uses legible font sizes',
+      failureTitle: 'Document doesn\'t use legible font sizes',
+      description: 'Font sizes less than 12px are too small to be legible and require mobile ' +
       'visitors to “pinch to zoom” in order to read. Strive to have >60% of page text ≥12px. ' +
       '[Learn more](https://developers.google.com/web/tools/lighthouse/audits/font-sizes).',
       requiredArtifacts: ['FontSize', 'URL', 'Viewport'],

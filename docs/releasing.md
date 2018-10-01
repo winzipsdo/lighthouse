@@ -38,7 +38,8 @@ yarn install-all
 
 # * Bump it *
 yarn version --no-git-tag-version
-# then manually bump extension v in extension/app/manifest.json
+# manually bump extension v in extension/app/manifest.json
+yarn update:sample-json
 
 # * Build it *
 yarn build-all
@@ -53,17 +54,16 @@ echo "Test the extension"
 
 echo "Test a fresh local install"
 # (starting from lighthouse-pristine root...)
-yarn pack
+npm pack
 cd ..; rm -rf tmp; mkdir tmp; cd tmp
 npm init -y
 npm install ../lighthouse-pristine/lighthouse-*.tgz
 npm explore lighthouse -- npm run smoke
-npm explore lighthouse -- npm run smokehouse
 npm explore lighthouse -- npm run chrome # try the manual launcher
 npm explore lighthouse -- npm run fast -- http://example.com
 cd ..; rm -rf ./tmp;
 
-cd lighthouse-pristine; command rm -f lighthouse-*.tgz
+cd ../lighthouse-pristine; command rm -f lighthouse-*.tgz
 
 echo "Test the lighthouse-viewer build"
 # Manual test for now:
@@ -99,8 +99,8 @@ echo "Go here: https://chrome.google.com/webstore/developer/edit/blipmdconlkpine
 echo "Upload the package zip to CWS dev dashboard"
 
 echo "Verify the npm package won't include unncessary files"
-yarn global add pkgfiles
-pkgfiles   # publishable size should be ~2MB
+npm pack --dry-run
+npx pkgfiles
 
 echo "ship it"
 npm publish
