@@ -49,7 +49,7 @@ module.exports = [
         score: 1,
       },
       'font-size': {
-        rawValue: true,
+        score: 1,
         details: {
           items: {
             length: 6,
@@ -72,7 +72,7 @@ module.exports = [
         score: 1,
       },
       'robots-txt': {
-        rawValue: true,
+        score: null,
         scoreDisplayMode: 'not-applicable',
       },
     },
@@ -94,7 +94,7 @@ module.exports = [
         score: 1,
       },
       'font-size': {
-        rawValue: false,
+        score: 0,
         explanation: 'Text is illegible because of a missing viewport config',
       },
       'link-text': {

@@ -200,7 +200,7 @@ describe('Runner', () => {
 
     return Runner.run({}, {url, config}).then(results => {
       assert.equal(results.lhr.requestedUrl, url);
-      assert.equal(results.lhr.audits['eavesdrop-audit'].rawValue, true);
+      assert.equal(results.lhr.audits['eavesdrop-audit'].score, 1);
       // assert that the options we received matched expectations
       assert.deepEqual(calls, [{x: 1}, {x: 2}]);
     });
@@ -219,7 +219,7 @@ describe('Runner', () => {
     return Runner.run({}, {config}).then(results => {
       const audits = results.lhr.audits;
       assert.equal(audits['user-timings'].displayValue, '2 user timings');
-      assert.equal(audits['user-timings'].rawValue, false);
+      assert.equal(audits['user-timings'].score, null);
     });
   });
 
@@ -263,7 +263,7 @@ describe('Runner', () => {
 
       return Runner.run({}, {config}).then(results => {
         const auditResult = results.lhr.audits['user-timings'];
-        assert.strictEqual(auditResult.rawValue, null);
+        assert.strictEqual(auditResult.score, null);
         assert.strictEqual(auditResult.scoreDisplayMode, 'error');
         assert.ok(auditResult.errorMessage.includes('traces'));
       });
@@ -282,7 +282,7 @@ describe('Runner', () => {
 
       return Runner.run({}, {config}).then(results => {
         const auditResult = results.lhr.audits['content-width'];
-        assert.strictEqual(auditResult.rawValue, null);
+        assert.strictEqual(auditResult.score, null);
         assert.strictEqual(auditResult.scoreDisplayMode, 'error');
         assert.ok(auditResult.errorMessage.includes('ViewportDimensions'));
       });
@@ -346,7 +346,7 @@ describe('Runner', () => {
 
       return Runner.run({}, {config}).then(results => {
         const auditResult = results.lhr.audits['throwy-audit'];
-        assert.strictEqual(auditResult.rawValue, null);
+        assert.strictEqual(auditResult.score, null);
         assert.strictEqual(auditResult.scoreDisplayMode, 'error');
         assert.ok(auditResult.errorMessage.includes(errorMessage));
       });
@@ -391,7 +391,7 @@ describe('Runner', () => {
     return Runner.run({}, {config}).then(results => {
       const audits = results.lhr.audits;
       assert.equal(audits['critical-request-chains'].displayValue, '5 chains found');
-      assert.equal(audits['critical-request-chains'].rawValue, false);
+      assert.equal(audits['critical-request-chains'].score, null);
     });
   });
 

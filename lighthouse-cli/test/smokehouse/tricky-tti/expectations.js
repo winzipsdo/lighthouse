@@ -15,11 +15,9 @@ module.exports = [
     audits: {
       'first-cpu-idle': {
         score: '<75',
-        rawValue: '>9000',
       },
       'interactive': {
         score: '<75',
-        rawValue: '>9000',
       },
     },
   },

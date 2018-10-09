@@ -65,10 +65,6 @@ describe('Audit', () => {
   });
 
   describe('generateAuditResult', () => {
-    it('throws if an audit does return a result with a rawValue', () => {
-      assert.throws(_ => Audit.generateAuditResult(B, {}), /requires a rawValue/);
-    });
-
     it('chooses the failureTitle if score is failing', () => {
       class FailingAudit extends Audit {
         static get meta() {

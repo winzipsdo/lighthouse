@@ -31,7 +31,7 @@ describe('CLI run', function() {
       const {lhr} = passedResults;
       assert.ok(fs.existsSync(filename));
       const results = JSON.parse(fs.readFileSync(filename, 'utf-8'));
-      assert.equal(results.audits.viewport.rawValue, false);
+      assert.equal(results.audits.viewport.score, 0);
 
       // passed results match saved results
       assert.strictEqual(results.fetchTime, lhr.fetchTime);

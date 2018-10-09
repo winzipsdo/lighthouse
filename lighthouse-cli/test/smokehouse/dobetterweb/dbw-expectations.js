@@ -78,7 +78,6 @@ module.exports = [
       },
       'render-blocking-resources': {
         score: '<1',
-        rawValue: '>100',
         details: {
           items: {
             length: 7,

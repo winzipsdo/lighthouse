@@ -25,10 +25,10 @@ module.exports = [
       'interactive': {
         score: '>=0.90',
       },
-      'time-to-first-byte': {
-        // Can be flaky, so test float rawValue instead of boolean score
-        rawValue: '<1000',
-      },
+      // 'time-to-first-byte': {
+      //   // Can be flaky, so test float rawValue instead of boolean score
+      //   rawValue: '<1000',
+      // },
       'network-requests': {
         details: {
           items: {
@@ -38,7 +38,6 @@ module.exports = [
       },
       'uses-rel-preload': {
         score: '<1',
-        rawValue: '>500',
         details: {
           items: {
             length: 1,
@@ -61,7 +60,6 @@ module.exports = [
     audits: {
       'font-display': {
         score: 0,
-        rawValue: false,
         details: {
           items: {
             length: 2,

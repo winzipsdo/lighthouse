@@ -17,7 +17,6 @@ module.exports = [
     audits: {
       'redirects': {
         score: '<1',
-        rawValue: '>=500',
         details: {
           items: {
             length: 3,
@@ -32,7 +31,6 @@ module.exports = [
     audits: {
       'redirects': {
         score: 1,
-        rawValue: '>=250',
         details: {
           items: {
             length: 2,
