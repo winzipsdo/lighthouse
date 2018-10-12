@@ -211,10 +211,11 @@ class GatherRunner {
   static async pass(passContext, gathererResults) {
     const driver = passContext.driver;
     const config = passContext.passConfig;
+    const settings = passContext.settings;
     const gatherers = config.gatherers;
+
     const recordTrace = config.recordTrace;
-    const isPerfRun = !passContext.settings.disableStorageReset && recordTrace &&
-        config.useThrottling;
+    const isPerfRun = !settings.disableStorageReset && recordTrace && config.useThrottling;
 
     const gatherernames = gatherers.map(g => g.instance.name).join(', ');
     const status = 'Loading page & waiting for onload';
@@ -225,7 +226,7 @@ class GatherRunner {
     // Always record devtoolsLog
     await driver.beginDevtoolsLog();
     // Begin tracing if requested by config.
-    if (recordTrace) await driver.beginTrace(passContext);
+    if (recordTrace) await driver.beginTrace(settings);
 
     // Navigate.
     await GatherRunner.loadPage(driver, passContext);
@@ -401,7 +402,6 @@ class GatherRunner {
           // If the main document redirects, we'll update this to keep track
           url: options.requestedUrl,
           settings: options.settings,
-          hostUserAgent: baseArtifacts.HostUserAgent,
           passConfig,
           // *pass() functions and gatherers can push to this warnings array.
           LighthouseRunWarnings: baseArtifacts.LighthouseRunWarnings,
