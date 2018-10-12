@@ -6,6 +6,7 @@
 'use strict';
 
 let sendCommandParams = [];
+let sendCommandStubResponses = {};
 
 const Driver = require('../../gather/driver.js');
 const Connection = require('../../gather/connections/connection.js');
@@ -46,9 +47,27 @@ function createActiveWorker(id, url, controlledClients, status = 'activated') {
   };
 }
 
+function createOnceMethodResponse(method, response) {
+  sendCommandStubResponses[method] = response;
+}
+
 connection.sendCommand = function(command, params) {
   sendCommandParams.push({command, params});
+
+  if (sendCommandStubResponses[command]) {
+    return Promise.resolve(sendCommandStubResponses[command]);
+  }
+
   switch (command) {
+    case 'Browser.getVersion':
+      return Promise.resolve({
+        protocolVersion: '1.3',
+        product: 'Chrome/71.0.3577.0',
+        revision: '@fc334a55a70eec12fc77853c53979f81e8496c21',
+        // eslint-disable-next-line max-len
+        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3577.0 Safari/537.36',
+        jsVersion: '7.1.314',
+      });
     case 'DOM.getDocument':
       return Promise.resolve({root: {nodeId: 249}});
     case 'DOM.querySelector':
@@ -232,26 +251,33 @@ describe('Browser Driver', () => {
   });
 
   it('will use requested additionalTraceCategories', () => {
-    const passContext = {settings: {additionalTraceCategories: 'v8,v8.execute,toplevel'}};
+    const passContext = {settings: {additionalTraceCategories: 'v8,v8.execute,loading'}};
     return driverStub.beginTrace(passContext).then(() => {
       const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
       const categories = traceCmd.params.categories;
       assert.ok(categories.includes('blink'), 'contains default categories');
       assert.ok(categories.includes('v8.execute'), 'contains added categories');
-      assert.ok(categories.indexOf('toplevel') === categories.lastIndexOf('toplevel'),
+      assert.ok(categories.indexOf('loading') === categories.lastIndexOf('loading'),
           'de-dupes categories');
     });
   });
 
+  it('will adjust traceCategories based on chrome version', () => {
+    createOnceMethodResponse('Browser.getVersion', {
+      protocolVersion: '1.3',
+      product: 'Chrome/70.0.3577.0', // m70 doesn't have disabled-by-default-lighthouse
+      revision: '@fc334a55a70eec12fc77853c53979f81e8496c21',
+      // eslint-disable-next-line max-len
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3577.0 Safari/537.36',
+      jsVersion: '7.1.314',
+    });
 
-  it('will adjust traceCategories based on host user agent', () => {
     // eslint-disable-next-line max-len
-    const passContext = {hostUserAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/Headless71.0.3561.0 Safari/537.36'};
-    return driverStub.beginTrace(passContext).then(() => {
+    return driverStub.beginTrace({settings: {}}).then(() => {
       const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
       const categories = traceCmd.params.categories;
-      assert.ok(categories.includes('disabled-by-default-lighthouse'), 'contains new categories');
-      assert.equal(categories.indexOf('toplevel'), -1, 'excludes toplevel');
+      assert.ok(categories.includes('toplevel'), 'contains old toplevel category');
+      assert.equal(categories.indexOf('disabled-by-default-lighthouse'), -1, 'excludes new cat');
     });
   });
 
