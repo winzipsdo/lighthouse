@@ -83,7 +83,7 @@ class Driver {
   static get traceCategories() {
     return [
       '-*', // exclude default
-      'toplevel',
+      'disabled-by-default-lighthouse', // used instead of 'toplevel' in Chrome 71+
       'v8.execute',
       'blink.console',
       'blink.user_timing',
@@ -102,11 +102,13 @@ class Driver {
   }
 
   /**
-   * @return {Promise<string>}
+   * @return {Promise<LH.Crdp.Browser.GetVersionResponse & {milestone: number}>}
    */
-  getUserAgent() {
-    // FIXME: use Browser.getVersion instead
-    return this.evaluateAsync('navigator.userAgent');
+  async getBrowserVersion() {
+    const version = await this.sendCommand('Browser.getVersion');
+    const match = version.product.match(/\/(\d+)/);
+    const milestone = match ? parseInt(match[1]) : 0;
+    return Object.assign(version, {milestone});
   }
 
   /**
@@ -919,19 +921,18 @@ class Driver {
    * @param {LH.Gatherer.PassContext} passContext
    * @return {Promise<void>}
    */
-  beginTrace(passContext) {
+  async beginTrace(passContext) {
     const settings = passContext.settings;
     const additionalCategories = (settings && settings.additionalTraceCategories &&
         settings.additionalTraceCategories.split(',')) || [];
     const traceCategories = this._traceCategories.concat(additionalCategories);
 
-    // In Chrome 71+, we trade the chatty 'toplevel' cat for our own, reducing overall trace size
-    // TODO(COMPAT): Once m71 ships to stable, change the traceCategories for real
-    const reChrome71 = /Chrome\/(Headless)?7[1-9]/;
-    if (passContext.hostUserAgent && reChrome71.test(passContext.hostUserAgent)) {
-      traceCategories.forEach((cat, idx) => {
-        if (cat === 'toplevel') traceCategories[idx] = 'disabled-by-default-lighthouse';
-      });
+    // In Chrome <71, gotta use the chatty 'toplevel' cat instead of our own.
+    // TODO(COMPAT): Once m71 ships to stable, drop this section
+    const milestone = (await this.getBrowserVersion()).milestone; // eg 'Chrome/71.0.3577.0'
+    if (milestone < 71) {
+      const toplevelIndex = traceCategories.indexOf('disabled-by-default-lighthouse');
+      traceCategories.splice(toplevelIndex, 1, 'toplevel');
     }
 
     const uniqueCategories = Array.from(new Set(traceCategories));
