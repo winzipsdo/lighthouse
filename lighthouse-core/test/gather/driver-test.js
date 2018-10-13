@@ -13,6 +13,7 @@ const Connection = require('../../gather/connections/connection.js');
 const Element = require('../../lib/element.js');
 const assert = require('assert');
 const EventEmitter = require('events').EventEmitter;
+const {browserVersion} = require('./fake-driver');
 
 const connection = new Connection();
 const driverStub = new Driver(connection);
@@ -63,14 +64,7 @@ connection.sendCommand = function(command, params) {
 
   switch (command) {
     case 'Browser.getVersion':
-      return Promise.resolve({
-        protocolVersion: '1.3',
-        product: 'Chrome/71.0.3577.0',
-        revision: '@fc334a55a70eec12fc77853c53979f81e8496c21',
-        // eslint-disable-next-line max-len
-        userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3577.0 Safari/537.36',
-        jsVersion: '7.1.314',
-      });
+      return Promise.resolve(browserVersion);
     case 'DOM.getDocument':
       return Promise.resolve({root: {nodeId: 249}});
     case 'DOM.querySelector':
@@ -247,7 +241,7 @@ describe('Browser Driver', () => {
   });
 
   it('will request default traceCategories', () => {
-    return driverStub.beginTrace({settings: {}}).then(() => {
+    return driverStub.beginTrace().then(() => {
       const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
       const categories = traceCmd.params.categories;
       assert.ok(categories.includes('devtools.timeline'), 'contains devtools.timeline');
@@ -255,12 +249,11 @@ describe('Browser Driver', () => {
   });
 
   it('will use requested additionalTraceCategories', () => {
-    const passContext = {settings: {additionalTraceCategories: 'v8,v8.execute,loading'}};
-    return driverStub.beginTrace(passContext).then(() => {
+    return driverStub.beginTrace({additionalTraceCategories: 'loading,xtra_cat'}).then(() => {
       const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
       const categories = traceCmd.params.categories;
-      assert.ok(categories.includes('blink'), 'contains default categories');
-      assert.ok(categories.includes('v8.execute'), 'contains added categories');
+      assert.ok(categories.includes('blink.user_timing'), 'contains default categories');
+      assert.ok(categories.includes('xtra_cat'), 'contains added categories');
       assert.ok(categories.indexOf('loading') === categories.lastIndexOf('loading'),
           'de-dupes categories');
     });
@@ -268,17 +261,15 @@ describe('Browser Driver', () => {
 
   it('will adjust traceCategories based on chrome version', () => {
     // m70 doesn't have disabled-by-default-lighthouse, so 'toplevel' is used instead.
-    createOnceMethodResponse('Browser.getVersion', {
-      protocolVersion: '1.3',
+    const m70BrowserVersion = Object.assign({}, browserVersion, {
       product: 'Chrome/70.0.3577.0',
-      revision: '@fc334a55a70eec12fc77853c53979f81e8496c21',
       // eslint-disable-next-line max-len
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3577.0 Safari/537.36',
-      jsVersion: '7.1.314',
     });
+    createOnceMethodResponse('Browser.getVersion', m70BrowserVersion);
 
     // eslint-disable-next-line max-len
-    return driverStub.beginTrace({settings: {}}).then(() => {
+    return driverStub.beginTrace().then(() => {
       const traceCmd = sendCommandParams.find(obj => obj.command === 'Tracing.start');
       const categories = traceCmd.params.categories;
       assert.ok(categories.includes('toplevel'), 'contains old toplevel category');
