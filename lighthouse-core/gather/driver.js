@@ -918,11 +918,10 @@ class Driver {
   }
 
   /**
-   * @param {LH.Gatherer.PassContext} passContext
+   * @param {{additionalTraceCategories?: string|null}=} settings
    * @return {Promise<void>}
    */
-  async beginTrace(passContext) {
-    const settings = passContext.settings;
+  async beginTrace(settings) {
     const additionalCategories = (settings && settings.additionalTraceCategories &&
         settings.additionalTraceCategories.split(',')) || [];
     const traceCategories = this._traceCategories.concat(additionalCategories);

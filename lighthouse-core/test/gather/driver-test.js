@@ -6,7 +6,7 @@
 'use strict';
 
 let sendCommandParams = [];
-let sendCommandStubResponses = {};
+let sendCommandMockResponses = {};
 
 const Driver = require('../../gather/driver.js');
 const Connection = require('../../gather/connections/connection.js');
@@ -48,14 +48,17 @@ function createActiveWorker(id, url, controlledClients, status = 'activated') {
 }
 
 function createOnceMethodResponse(method, response) {
-  sendCommandStubResponses[method] = response;
+  assert.deepEqual(!!sendCommandMockResponses[method], false, 'stub response already defined');
+  sendCommandMockResponses[method] = response;
 }
 
 connection.sendCommand = function(command, params) {
   sendCommandParams.push({command, params});
 
-  if (sendCommandStubResponses[command]) {
-    return Promise.resolve(sendCommandStubResponses[command]);
+  const mockResponse = sendCommandMockResponses[command];
+  if (mockResponse) {
+    delete sendCommandMockResponses[command];
+    return Promise.resolve(mockResponse);
   }
 
   switch (command) {
@@ -118,6 +121,7 @@ connection.sendCommand = function(command, params) {
 describe('Browser Driver', () => {
   beforeEach(() => {
     sendCommandParams = [];
+    sendCommandMockResponses = {};
   });
 
   it('returns null when DOM.querySelector finds no node', () => {
@@ -263,12 +267,13 @@ describe('Browser Driver', () => {
   });
 
   it('will adjust traceCategories based on chrome version', () => {
+    // m70 doesn't have disabled-by-default-lighthouse, so 'toplevel' is used instead.
     createOnceMethodResponse('Browser.getVersion', {
       protocolVersion: '1.3',
-      product: 'Chrome/70.0.3577.0', // m70 doesn't have disabled-by-default-lighthouse
+      product: 'Chrome/70.0.3577.0',
       revision: '@fc334a55a70eec12fc77853c53979f81e8496c21',
       // eslint-disable-next-line max-len
-      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3577.0 Safari/537.36',
+      userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3577.0 Safari/537.36',
       jsVersion: '7.1.314',
     });
 
