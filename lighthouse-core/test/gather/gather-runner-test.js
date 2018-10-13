@@ -53,8 +53,8 @@ function getMockedEmulationDriver(emulationFn, netThrottleFn, cpuThrottleFn,
     }
     cleanBrowserCaches() {}
     clearDataForOrigin() {}
-    getUserAgent() {
-      return Promise.resolve('Fake user agent');
+    getBrowserVersion() {
+      return Promise.resolve({userAgent: 'Fake user agent'});
     }
   };
   const EmulationMock = class extends Connection {

@@ -6,8 +6,8 @@
 'use strict';
 
 module.exports = {
-  getUserAgent() {
-    return Promise.resolve('Fake user agent');
+  getBrowserVersion() {
+    return Promise.resolve({userAgent: 'Fake user agent'});
   },
   getBenchmarkIndex() {
     return Promise.resolve(125.2);
