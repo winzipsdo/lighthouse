@@ -86,6 +86,7 @@ class ReportUIFeatures {
     this.json = report;
     this._setupMediaQueryListeners();
     this._setupExportButton();
+    this._setupThirdPartyFilter();
     this._setUpCollapseDetailsAfterPrinting();
     this._setupHeaderAnimation();
     this._resetUIState();
@@ -126,6 +127,54 @@ class ReportUIFeatures {
 
     const dropdown = this._dom.find('.lh-export__dropdown', this._document);
     dropdown.addEventListener('click', this.onExport);
+  }
+
+  _setupThirdPartyFilter() {
+    const pageTLDPlusOne = new URL(this.json.finalUrl).origin.split('.').slice(-2).join('.');
+
+    // get all tables with a text url
+    /** @type {Array<Element>} */
+    const tables = Array.from(document.querySelectorAll('.lh-table'));
+    tables.filter(el => el.querySelector('td.lh-table-column--url'))
+      .forEach((el, index) => {
+        const replacements = new Map();
+        const urlItems = el.querySelectorAll('.lh-text__url');
+
+        // create input box
+        const filterTemplate = this._dom.cloneTemplate('#tmpl-lh-3p-filter', this._document);
+        const filterInput = filterTemplate.querySelector('input');
+        const id = `lh-3p-filter-label--${index}`;
+        filterTemplate.querySelector('label').setAttribute('for', id);
+        filterInput.setAttribute('id', id);
+
+        filterInput.addEventListener('change', e => {
+          // remove elements from the dom and keep track of them to readd on uncheck
+          // why removing instead of hiding? nth-child(even) background-colors keep working
+          if (e.target.checked) {
+            let i = 0;
+            for (const urlItem of urlItems) {
+              const isThirdParty = !urlItem.title.includes(`${pageTLDPlusOne}/`);
+              if (!isThirdParty) continue;
+
+              const urlRow = urlItem.closest('tr');
+              replacements.set(urlRow, Array.from(el.tBodies[0].children).indexOf(urlRow) + i++);
+
+              urlRow.parentNode.removeChild(urlRow);
+            }
+          } else {
+            for (let [urlRow, position] of replacements.entries()) {
+              // if we have children we add them on the right position, else we just append it to the list
+              if (el.tBodies[0].children.length) {
+                Array.from(el.tBodies[0].children)[position - 1].insertAdjacentElement('afterend', urlRow);
+              } else {
+                el.tBodies[0].appendChild(urlRow);
+              }
+            }
+          }
+        });
+
+        el.parentNode.insertBefore(filterTemplate, el);
+      });
   }
 
   _setupHeaderAnimation() {
