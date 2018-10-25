@@ -170,7 +170,7 @@ declare global {
           responseReceivedTime: number;
           transferSize: number;
         };
-        children: SimpleCriticalRequestNode;
+        children?: SimpleCriticalRequestNode;
       }
     }
 

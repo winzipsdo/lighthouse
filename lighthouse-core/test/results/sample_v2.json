@@ -306,8 +306,7 @@
                   "endTime": 185604.52588,
                   "responseReceivedTime": 185604.52470399998,
                   "transferSize": 821
-                },
-                "children": {}
+                }
               },
               "75994.4": {
                 "request": {
@@ -316,8 +315,7 @@
                   "endTime": 185604.534512,
                   "responseReceivedTime": 185604.532778,
                   "transferSize": 139
-                },
-                "children": {}
+                }
               },
               "75994.5": {
                 "request": {
@@ -326,8 +324,7 @@
                   "endTime": 185606.170588,
                   "responseReceivedTime": 185606.169761,
                   "transferSize": 821
-                },
-                "children": {}
+                }
               },
               "75994.6": {
                 "request": {
@@ -336,8 +333,7 @@
                   "endTime": 185604.541262,
                   "responseReceivedTime": 185604.54052399998,
                   "transferSize": 1108
-                },
-                "children": {}
+                }
               },
               "75994.7": {
                 "request": {
@@ -346,8 +342,7 @@
                   "endTime": 185604.549739,
                   "responseReceivedTime": 185604.54903999998,
                   "transferSize": 736
-                },
-                "children": {}
+                }
               },
               "75994.8": {
                 "request": {
@@ -356,8 +351,7 @@
                   "endTime": 185605.097653,
                   "responseReceivedTime": 185605.096858,
                   "transferSize": 733
-                },
-                "children": {}
+                }
               },
               "75994.9": {
                 "request": {
@@ -366,8 +360,7 @@
                   "endTime": 185607.537382,
                   "responseReceivedTime": 185607.53660999998,
                   "transferSize": 821
-                },
-                "children": {}
+                }
               },
               "75994.10": {
                 "request": {
@@ -376,8 +369,7 @@
                   "endTime": 185605.113307,
                   "responseReceivedTime": 185605.104776,
                   "transferSize": 1703
-                },
-                "children": {}
+                }
               },
               "75994.11": {
                 "request": {
@@ -386,8 +378,7 @@
                   "endTime": 185604.557407,
                   "responseReceivedTime": 185604.556719,
                   "transferSize": 144
-                },
-                "children": {}
+                }
               },
               "75994.21": {
                 "request": {
@@ -396,8 +387,7 @@
                   "endTime": 185607.28227,
                   "responseReceivedTime": 185606.742005,
                   "transferSize": 71654
-                },
-                "children": {}
+                }
               },
               "75994.22": {
                 "request": {
@@ -406,8 +396,7 @@
                   "endTime": 185608.117509,
                   "responseReceivedTime": 185607.822806,
                   "transferSize": 30174
-                },
-                "children": {}
+                }
               },
               "75994.28": {
                 "request": {
@@ -416,8 +405,7 @@
                   "endTime": 185607.285454,
                   "responseReceivedTime": 185606.82147599998,
                   "transferSize": 821
-                },
-                "children": {}
+                }
               }
             }
           },
@@ -428,8 +416,7 @@
               "endTime": 185608.857719,
               "responseReceivedTime": 185608.85586200003,
               "transferSize": 221
-            },
-            "children": {}
+            }
           }
         },
         "longestChain": {
@@ -1876,7 +1863,7 @@
       "id": "unminified-javascript",
       "title": "Minify JavaScript",
       "description": "Minifying JavaScript files can reduce payload sizes and script parse time. [Learn more](https://developers.google.com/speed/docs/insights/MinifyResources).",
-      "score": 1,
+      "score": 0.88,
       "scoreDisplayMode": "numeric",
       "displayValue": "Potential savings of 30 KB",
       "warnings": [],
@@ -1907,7 +1894,7 @@
             "wastedPercent": 42.52388078488413
           }
         ],
-        "overallSavingsMs": 0,
+        "overallSavingsMs": 150,
         "overallSavingsBytes": 30470
       }
     },
@@ -1991,7 +1978,7 @@
       "id": "uses-text-compression",
       "title": "Enable text compression",
       "description": "Text-based resources should be served with compression (gzip, deflate or brotli) to minimize total network bytes. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/text-compression).",
-      "score": 0.88,
+      "score": 0.75,
       "scoreDisplayMode": "numeric",
       "displayValue": "Potential savings of 63 KB",
       "details": {
@@ -2025,7 +2012,7 @@
             "wastedBytes": 8442
           }
         ],
-        "overallSavingsMs": 150,
+        "overallSavingsMs": 300,
         "overallSavingsBytes": 64646
       }
     },
@@ -2097,7 +2084,7 @@
           },
           {
             "key": "value",
-            "itemType": "text",
+            "itemType": "numeric",
             "text": "Value"
           }
         ],
@@ -2311,14 +2298,6 @@
         ],
         "summary": {}
       }
-    },
-    "no-websql": {
-      "id": "no-websql",
-      "title": "Uses WebSQL DB",
-      "description": "Web SQL is deprecated. Consider using IndexedDB instead. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/web-sql).",
-      "score": 0,
-      "scoreDisplayMode": "binary",
-      "displayValue": "Found \"mydb\" (v1.0)"
     },
     "notification-on-start": {
       "id": "notification-on-start",
@@ -3125,10 +3104,6 @@
       "auditRefs": [
         {
           "id": "appcache-manifest",
-          "weight": 1
-        },
-        {
-          "id": "no-websql",
           "weight": 1
         },
         {
