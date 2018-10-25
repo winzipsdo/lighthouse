@@ -25,10 +25,6 @@ module.exports = [
       'interactive': {
         score: '>=0.90',
       },
-      // 'time-to-first-byte': {
-      //   // Can be flaky, so test float rawValue instead of boolean score
-      //   rawValue: '<1000',
-      // },
       'network-requests': {
         details: {
           items: {
