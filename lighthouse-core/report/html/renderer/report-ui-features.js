@@ -158,7 +158,8 @@ class ReportUIFeatures {
         const id = `lh-3p-filter-label--${index}`;
         filterTemplate.querySelector('label').setAttribute('for', id);
         filterInput.setAttribute('id', id);
-        filterTemplate.querySelector('.lh-3p-filter-count').innerHTML = Object.keys(thirdPartyRows).length;
+        filterTemplate.querySelector('.lh-3p-filter-count').innerHTML =
+          Object.keys(thirdPartyRows).length;
 
         filterInput.addEventListener('change', e => {
           // remove elements from the dom and keep track of them to readd on uncheck
@@ -167,10 +168,12 @@ class ReportUIFeatures {
             Object.keys(thirdPartyRows).forEach(position => {
               const row = thirdPartyRows[position];
 
+              // eslint-disable-next-line eqeqeq
               if (position == 0) {
                 el.tBodies[0].appendChild(row);
               } else {
-                Array.from(el.tBodies[0].children)[Number(position) - 1].insertAdjacentElement('afterend', row);
+                Array.from(el.tBodies[0].children)[Number(position) - 1]
+                  .insertAdjacentElement('afterend', row);
               }
             });
           } else {
