@@ -134,11 +134,23 @@ class ReportUIFeatures {
 
     // get all tables with a text url
     /** @type {Array<Element>} */
-    const tables = Array.from(document.querySelectorAll('.lh-table'));
+    const tables = Array.from(this._document.querySelectorAll('.lh-table'));
     tables.filter(el => el.querySelector('td.lh-table-column--url'))
+      .filter(el => el.closest('.lh-audit').id !== 'uses-rel-preconnect')
       .forEach((el, index) => {
-        const replacements = new Map();
         const urlItems = el.querySelectorAll('.lh-text__url');
+        const thirdPartyRows = {};
+
+        for (const urlItem of urlItems) {
+          const isThirdParty = !urlItem.title.includes(`${pageTLDPlusOne}/`);
+          if (!isThirdParty) {
+            continue;
+          }
+
+          const urlRow = urlItem.closest('tr');
+          const rowPosition = Array.from(el.tBodies[0].children).indexOf(urlRow);
+          thirdPartyRows[rowPosition] = urlRow;
+        }
 
         // create input box
         const filterTemplate = this._dom.cloneTemplate('#tmpl-lh-3p-filter', this._document);
@@ -146,30 +158,26 @@ class ReportUIFeatures {
         const id = `lh-3p-filter-label--${index}`;
         filterTemplate.querySelector('label').setAttribute('for', id);
         filterInput.setAttribute('id', id);
+        filterTemplate.querySelector('.lh-3p-filter-count').innerHTML = Object.keys(thirdPartyRows).length;
 
         filterInput.addEventListener('change', e => {
           // remove elements from the dom and keep track of them to readd on uncheck
           // why removing instead of hiding? nth-child(even) background-colors keep working
           if (e.target.checked) {
-            let i = 0;
-            for (const urlItem of urlItems) {
-              const isThirdParty = !urlItem.title.includes(`${pageTLDPlusOne}/`);
-              if (!isThirdParty) continue;
+            Object.keys(thirdPartyRows).forEach(position => {
+              const row = thirdPartyRows[position];
 
-              const urlRow = urlItem.closest('tr');
-              replacements.set(urlRow, Array.from(el.tBodies[0].children).indexOf(urlRow) + i++);
-
-              urlRow.parentNode.removeChild(urlRow);
-            }
-          } else {
-            for (let [urlRow, position] of replacements.entries()) {
-              // if we have children we add them on the right position, else we just append it to the list
-              if (el.tBodies[0].children.length) {
-                Array.from(el.tBodies[0].children)[position - 1].insertAdjacentElement('afterend', urlRow);
+              if (position == 0) {
+                el.tBodies[0].appendChild(row);
               } else {
-                el.tBodies[0].appendChild(urlRow);
+                Array.from(el.tBodies[0].children)[Number(position) - 1].insertAdjacentElement('afterend', row);
               }
-            }
+            });
+          } else {
+            Object.keys(thirdPartyRows).forEach(position => {
+              const row = thirdPartyRows[position];
+              row.parentNode.removeChild(row);
+            });
           }
         });
 
