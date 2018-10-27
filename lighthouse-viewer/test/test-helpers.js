@@ -15,7 +15,7 @@ const PAGE = fs.readFileSync(path.join(__dirname, '../app/index.html'), 'utf8');
 
 function setupJsDomGlobals() {
   const {window} = new jsdom.JSDOM(PAGE);
-  global.document = window.document
+  global.document = window.document;
   global.window = window;
   global.logger = console;
   global.logger.hide = () => {/* noop */};
