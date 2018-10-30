@@ -1,19 +1,24 @@
 sudo: required
-language: node_js
-os:
-  - linux
-  - windows
 branches:
   only:
-  - master
+    - master
 matrix:
   allow_failures:
     - os: windows
   include:
     - language: node_js
       node_js: "8"
+      os: windows
+    - language: node_js
+      node_js: "8"
+      os: linux
     - language: node_js
       node_js: "10"
+      os: windows
+      if: head_branch IS blank AND branch = master
+    - language: node_js
+      node_js: "10"
+      os: linux
       if: head_branch IS blank AND branch = master
 dist: trusty
 cache:
