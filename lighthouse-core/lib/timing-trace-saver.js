@@ -6,32 +6,12 @@
 'use strict';
 
 /**
- * Technically, it's fine for usertiming measures to overlap, however non-async events make
- * for a much clearer UI in traceviewer. We do this check to make sure we aren't passing off
- * async-like measures as non-async.
- * prevEntries are expected to be sorted by startTime
- * @param {LH.Artifacts.MeasureEntry} entry user timing entry
- * @param {LH.Artifacts.MeasureEntry[]} prevEntries user timing entries
- */
-function checkEventOverlap(entry, prevEntries) {
-  for (const prevEntry of prevEntries) {
-    const prevEnd = prevEntry.startTime + prevEntry.duration;
-    const thisEnd = entry.startTime + entry.duration;
-    const isOverlap = prevEnd > entry.startTime && prevEnd < thisEnd;
-    if (isOverlap) {
-      // eslint-disable-next-line no-console
-      console.error(`Two measures overlap! ${prevEntry.name} & ${entry.name}`);
-    }
-  }
-}
-
-/**
  * Generates a chromium trace file from user timing measures
  * Adapted from https://github.com/tdresser/performance-observer-tracing
  * @param {LH.Artifacts.MeasureEntry[]} entries user timing entries
- * @param {string=} trackName
+ * @param {number=} threadId
  */
-function generateTraceEvents(entries, trackName = 'measures') {
+function generateTraceEvents(entries, threadId = 0) {
   if (!Array.isArray(entries)) return [];
 
   /** @type {LH.TraceEvent[]} */
@@ -39,36 +19,41 @@ function generateTraceEvents(entries, trackName = 'measures') {
   let id = 0;
 
   entries.sort((a, b) => a.startTime - b.startTime);
-  entries.forEach((entry, i) => {
-    checkEventOverlap(entry, entries.slice(0, i));
-
+  entries.forEach(entry => {
     /** @type {LH.TraceEvent} */
-    const traceEvent = {
-      name: entry.name,
-      cat: entry.entryType,
+    const startEvt = {
+      // 1) Remove 'lh:' for readability
+      // 2) Colons in user_timing names get special handling in traceviewer we don't want. https://goo.gl/m23Vz7
+      //    Replace with a 'Modifier letter colon' ;)
+      name: entry.name.replace('lh:', '').replace(/:/g, '꞉'),
+      cat: 'blink.user_timing',
       ts: entry.startTime * 1000,
-      dur: entry.duration * 1000,
       args: {},
+      dur: 0,
       pid: 0,
-      tid: trackName === 'measures' ? 50 : 75,
-      ph: 'X',
+      tid: threadId,
+      ph: 'b',
       id: '0x' + (id++).toString(16),
     };
 
-    if (entry.entryType !== 'measure') throw new Error('Unexpected entryType!');
     if (entry.duration === 0) {
-      traceEvent.ph = 'n';
-      traceEvent.s = 't';
+      startEvt.ph = 'n';
+      startEvt.s = 't';
     }
 
-    currentTrace.push(traceEvent);
+    const endEvt = JSON.parse(JSON.stringify(startEvt));
+    endEvt.ph = 'e';
+    endEvt.ts = startEvt.ts + (entry.duration * 1000);
+
+    currentTrace.push(startEvt);
+    currentTrace.push(endEvt);
   });
 
   // Add labels
   /** @type {LH.TraceEvent} */
   const metaEvtBase = {
     pid: 0,
-    tid: trackName === 'measures' ? 50 : 75,
+    tid: threadId,
     ts: 0,
     dur: 0,
     ph: 'M',
@@ -77,7 +62,6 @@ function generateTraceEvents(entries, trackName = 'measures') {
     args: {labels: 'Default'},
   };
   currentTrace.push(Object.assign({}, metaEvtBase, {args: {labels: 'Lighthouse Timing'}}));
-  currentTrace.push(Object.assign({}, metaEvtBase, {name: 'thread_name', args: {name: trackName}}));
 
   return currentTrace;
 }
@@ -92,7 +76,7 @@ function createTraceString(lhr) {
   const entries = lhr.timing.entries.filter(entry => !gatherEntries.includes(entry));
 
   const auditEvents = generateTraceEvents(entries);
-  const gatherEvents = generateTraceEvents(gatherEntries, 'gather');
+  const gatherEvents = generateTraceEvents(gatherEntries, 10);
   const events = [...auditEvents, ...gatherEvents];
 
   const jsonStr = `
