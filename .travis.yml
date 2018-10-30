@@ -3,8 +3,6 @@ branches:
   only:
     - master
 matrix:
-  allow_failures:
-    - os: windows
   include:
     - language: node_js
       node_js: "8"
@@ -39,16 +37,15 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
   # see comment above about puppeteer
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CHROME_PATH="$(which google-chrome-stable)"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then set CHROME_PATH="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
   - yarn build-all
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn bundlesize; fi
   - yarn diff:sample-json
   - yarn lint
-  - yarn unit:silentcoverage
+  - yarn unit
   - yarn type-check
-  - yarn smoke:silentcoverage
+  - yarn smoke
   - yarn test-clients
   - yarn test-viewer
   - yarn test-lantern
