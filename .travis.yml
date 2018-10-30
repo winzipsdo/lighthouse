@@ -39,7 +39,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
   # see comment above about puppeteer
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CHROME_PATH="$(which google-chrome-stable)"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then export CHROME_PATH="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then set CHROME_PATH="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
   - yarn build-all
 script:
