@@ -1,5 +1,8 @@
 sudo: required
 language: node_js
+os:
+  - linux
+  - windows
 branches:
   only:
   - master
@@ -7,17 +10,8 @@ matrix:
   include:
     - language: node_js
       node_js: "8"
-      os: windows
-    - language: node_js
-      node_js: "8"
-      os: linux
     - language: node_js
       node_js: "10"
-      os: windows
-      if: head_branch IS blank AND branch = master
-    - language: node_js
-      node_js: "10"
-      os: linux
       if: head_branch IS blank AND branch = master
 dist: trusty
 cache:
@@ -35,7 +29,7 @@ install:
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export DISPLAY=:99.0; fi
   # see comment above about puppeteer
-  -  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CHROME_PATH="$(which google-chrome-stable)"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CHROME_PATH="$(which google-chrome-stable)"; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
   - yarn build-all
 script:
@@ -58,7 +52,7 @@ before_cache:
   - rm -rf ./node_modules/temp-devtoolsfrontend/
   - rm -rf ./node_modules/temp-devtoolsprotocol/
 after_success:
-  - yarn coveralls
-  - yarn codecov
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn coveralls; fi
+  -if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  yarn codecov; fi
 addons:
   chrome: stable
