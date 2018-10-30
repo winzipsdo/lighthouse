@@ -7,6 +7,8 @@ branches:
   only:
   - master
 matrix:
+  allow_failures:
+    - os: windows
   include:
     - language: node_js
       node_js: "8"
@@ -53,6 +55,6 @@ before_cache:
   - rm -rf ./node_modules/temp-devtoolsprotocol/
 after_success:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn coveralls; fi
-  -if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  yarn codecov; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  yarn codecov; fi
 addons:
   chrome: stable
