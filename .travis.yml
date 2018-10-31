@@ -39,6 +39,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sh -e /etc/init.d/xvfb start; fi
   - yarn build-all
 script:
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe" --headless  --disable-gpu  --enable-logging --dump-dom https://www.paulirish.com; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then yarn bundlesize; fi
   - yarn diff:sample-json
   - yarn lint
