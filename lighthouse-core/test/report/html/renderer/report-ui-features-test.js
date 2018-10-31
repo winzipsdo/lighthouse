@@ -53,8 +53,7 @@ describe('ReportUIFeatures', () => {
       };
     };
 
-    const document = new jsdom.JSDOM(TEMPLATE_FILE);
-    const documentReport = new jsdom.JSDOM(TEMPLATE_FILE_REPORT);
+    const document = new jsdom.JSDOM(TEMPLATE_FILE_REPORT.replace('%%LIGHTHOUSE_TEMPLATES%%', TEMPLATE_FILE));
     global.self = document.window;
     global.self.matchMedia = function() {
       return {
@@ -71,12 +70,11 @@ describe('ReportUIFeatures', () => {
     };
 
     const dom = new DOM(document.window.document);
-    const dom2 = new DOM(documentReport.window.document);
     const detailsRenderer = new DetailsRenderer(dom);
     const categoryRenderer = new CategoryRenderer(dom, detailsRenderer);
     renderer = new ReportRenderer(dom, categoryRenderer);
     sampleResults = Util.prepareReportResult(sampleResultsOrig);
-    reportUIFeatures = new ReportUIFeatures(dom2);
+    reportUIFeatures = new ReportUIFeatures(dom);
   });
 
   afterAll(() => {
@@ -96,7 +94,7 @@ describe('ReportUIFeatures', () => {
   describe('initFeature', () => {
     it('should init a report', () => {
       // render a report onto the UIFeature dom
-      const container = reportUIFeatures._dom._document.body;
+      const container = reportUIFeatures._dom._document.querySelector('main');
       renderer.renderReport(sampleResults, container);
 
       assert.equal(reportUIFeatures.json, undefined);
