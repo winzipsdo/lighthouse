@@ -53,7 +53,9 @@ describe('ReportUIFeatures', () => {
       };
     };
 
-    const document = new jsdom.JSDOM(TEMPLATE_FILE_REPORT.replace('%%LIGHTHOUSE_TEMPLATES%%', TEMPLATE_FILE));
+    const reportWithTemplates = TEMPLATE_FILE_REPORT
+      .replace('%%LIGHTHOUSE_TEMPLATES%%', TEMPLATE_FILE);
+    const document = new jsdom.JSDOM(reportWithTemplates);
     global.self = document.window;
     global.self.matchMedia = function() {
       return {
