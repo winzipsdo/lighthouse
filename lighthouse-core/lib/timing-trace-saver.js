@@ -16,10 +16,8 @@ function generateTraceEvents(entries, threadId = 0) {
 
   /** @type {LH.TraceEvent[]} */
   const currentTrace = [];
-  let id = 0;
-
   entries.sort((a, b) => a.startTime - b.startTime);
-  entries.forEach(entry => {
+  entries.forEach((entry, i) => {
     /** @type {LH.TraceEvent} */
     const startEvt = {
       // 1) Remove 'lh:' for readability
@@ -33,7 +31,7 @@ function generateTraceEvents(entries, threadId = 0) {
       pid: 0,
       tid: threadId,
       ph: 'b',
-      id: '0x' + (id++).toString(16),
+      id: '0x' + (i++).toString(16),
     };
 
     if (entry.duration === 0) {
