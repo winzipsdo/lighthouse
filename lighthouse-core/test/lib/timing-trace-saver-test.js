@@ -40,7 +40,7 @@ const mockEntries = [{
 describe('generateTraceEvents', () => {
   it('generates a pair of trace events', () => {
     const events = generateTraceEvents([mockEntries[0]]);
-    expect(events.slice(0, 1)).toMatchSnapshot();
+    expect(events.slice(0, 2)).toMatchSnapshot();
   });
 });
 

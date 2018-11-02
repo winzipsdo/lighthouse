@@ -1,21 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`generateTraceEvents generates a pair of trace events 1`] = `
-Array [
-  Object {
-    "args": Object {},
-    "cat": "blink.user_timing",
-    "dur": 0,
-    "id": "0x0",
-    "name": "init꞉config",
-    "ph": "b",
-    "pid": 0,
-    "tid": 0,
-    "ts": 650000,
-  },
-]
-`;
-
 exports[`createTraceString creates a real trace 1`] = `
 Array [
   Object {
@@ -121,6 +105,33 @@ Array [
     "pid": 0,
     "tid": 0,
     "ts": 0,
+  },
+]
+`;
+
+exports[`generateTraceEvents generates a pair of trace events 1`] = `
+Array [
+  Object {
+    "args": Object {},
+    "cat": "blink.user_timing",
+    "dur": 0,
+    "id": "0x0",
+    "name": "init꞉config",
+    "ph": "b",
+    "pid": 0,
+    "tid": 0,
+    "ts": 650000,
+  },
+  Object {
+    "args": Object {},
+    "cat": "blink.user_timing",
+    "dur": 0,
+    "id": "0x0",
+    "name": "init꞉config",
+    "ph": "e",
+    "pid": 0,
+    "tid": 0,
+    "ts": 860000,
   },
 ]
 `;

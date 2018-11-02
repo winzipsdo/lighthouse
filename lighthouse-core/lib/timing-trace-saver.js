@@ -34,11 +34,6 @@ function generateTraceEvents(entries, threadId = 0) {
       id: '0x' + (i++).toString(16),
     };
 
-    if (entry.duration === 0) {
-      startEvt.ph = 'n';
-      startEvt.s = 't';
-    }
-
     const endEvt = JSON.parse(JSON.stringify(startEvt));
     endEvt.ph = 'e';
     endEvt.ts = startEvt.ts + (entry.duration * 1000);
