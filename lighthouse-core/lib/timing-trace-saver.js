@@ -61,6 +61,19 @@ function generateTraceEvents(entries, threadId = 0) {
   };
   currentTrace.push(Object.assign({}, metaEvtBase, {args: {labels: 'Lighthouse Timing'}}));
 
+  // Only inject TracingStartedInBrowser once
+  if (threadId === 0) {
+    currentTrace.push(Object.assign({}, metaEvtBase, {
+      'cat': 'disabled-by-default-devtools.timeline',
+      'name': 'TracingStartedInBrowser',
+      'ph': 'I',
+      'args': {'data': {
+        'frameTreeNodeId': 1,
+        'persistentIds': true,
+        'frames': [],
+      }},
+    }));
+  }
   return currentTrace;
 }
 
@@ -77,10 +90,9 @@ function createTraceString(lhr) {
   const gatherEvents = generateTraceEvents(gatherEntries, 10);
   const events = [...auditEvents, ...gatherEvents];
 
-  const jsonStr = `
-  { "traceEvents": [
-    ${events.map(evt => JSON.stringify(evt)).join(',\n')}
-  ]}`;
+  const jsonStr = `{"traceEvents":[
+${events.map(evt => JSON.stringify(evt)).join(',\n')}
+]}`;
 
   return jsonStr;
 }
