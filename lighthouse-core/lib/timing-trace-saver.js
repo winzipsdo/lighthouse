@@ -7,6 +7,8 @@
 
 /**
  * Generates a chromium trace file from user timing measures
+ * `threadId` can be provided to separate a series of trace events into another thread, useful
+ * if timings do not share the same timeOrigin, but should both be "left-aligned".
  * Adapted from https://github.com/tdresser/performance-observer-tracing
  * @param {LH.Artifacts.MeasureEntry[]} entries user timing entries
  * @param {number=} threadId
@@ -23,7 +25,7 @@ function generateTraceEvents(entries, threadId = 0) {
       // 1) Remove 'lh:' for readability
       // 2) Colons in user_timing names get special handling in traceviewer we don't want. https://goo.gl/m23Vz7
       //    Replace with a 'Modifier letter colon' ;)
-      name: entry.name.replace('lh:', '').replace(/:/g, '꞉'),
+      name: entry.name.replace('lh:', '').replace(/:/g, '\ua789'),
       cat: 'blink.user_timing',
       ts: entry.startTime * 1000,
       args: {},

@@ -50,7 +50,7 @@ function saveTraceFromCLI() {
   // eslint-disable-next-line no-console
   console.log(`
   > Timing trace file saved to: ${traceFilePath}
-  > Open this file in DevTools perf panel (or if it's a -G/A run, use chrome://tracing)
+  > Open this file in DevTools perf panel   (For --audit-mode runs, use chrome://tracing instead)
 `);
 }
 
