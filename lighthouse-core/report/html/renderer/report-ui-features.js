@@ -16,6 +16,8 @@
  */
 'use strict';
 
+/* eslint-env browser */
+
 /**
  * @fileoverview Adds export button, print, and other dynamic functionality to
  * the report.
