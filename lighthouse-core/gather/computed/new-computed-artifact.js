@@ -8,28 +8,34 @@
 const ArbitraryEqualityMap = require('../../lib/arbitrary-equality-map.js');
 
 /**
- * @template {string} N
- * @template A
- * @template R
- * @param {{name: N, compute_: (artifact: A) => Promise<R>}} computableArtifact
- * @return {{name: N, request: (context: LH.Audit.Context, artifact: A) => Promise<R>}}
+ * Decorate computableArtifact with a caching `request()` method which will
+ * automatically call `computableArtifact.compute_()` under the hood.
+ * @template {{name: string, compute_(artifacts: unknown, context: LH.Audit.Context): Promise<unknown>}} C
+ * @param {C} computableArtifact
  */
 function makeComputedArtifact(computableArtifact) {
+  // tsc (3.1) has more difficulty with template inter-references in jsdoc, so
+  // give types to params and return value the long way, essentially recreating
+  // polymorphic-this behavior for C.
   /**
+   * Return an automatically cached result from the computed artifact.
+   * @param {FirstParamType<C['compute_']>} artifacts
    * @param {LH.Audit.Context} context
-   * @param {A} artifact
+   * @return {ReturnType<C['compute_']>}
    */
-  const request = ({computedCache}, artifact) => {
+  const request = (artifacts, context) => {
+    const computedCache = context.computedCache;
     const cache = computedCache.get(computableArtifact.name) || new ArbitraryEqualityMap();
     computedCache.set(computableArtifact.name, cache);
 
-    const computed = /** @type {Promise<R>|undefined} */ (cache.get(artifact));
+    const computed = /** @type {ReturnType<C['compute_']>|undefined} */ (cache.get(artifacts));
     if (computed) {
       return computed;
     }
 
-    const artifactPromise = computableArtifact.compute_(artifact);
-    cache.set(artifact, artifactPromise);
+    const artifactPromise = /** @type {ReturnType<C['compute_']>} */
+        (computableArtifact.compute_(artifacts, context));
+    cache.set(artifacts, artifactPromise);
 
     return artifactPromise;
   };

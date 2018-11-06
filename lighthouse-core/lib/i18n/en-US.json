@@ -383,6 +383,18 @@
     "message": "Performance",
     "description": "Title of the Performance category of audits. Equivalent to 'Web performance', this term is inclusive of all web page speed and loading optimization topics. Also used as a label of a score gauge; try to limit to 20 characters."
   },
+  "lighthouse-core/config/default-config.js | pwaEngagingGroupTitle": {
+    "message": "Engaging",
+    "description": "Title of the Engaging section of the web app category. Within this section are audits that check if the developer has taken advantage of features to make their web page more enjoyable and engaging for the user."
+  },
+  "lighthouse-core/config/default-config.js | pwaFastReliableGroupTitle": {
+    "message": "Fast and reliable",
+    "description": "Title of the Fast and Reliable section of the web app category. Within this section are audits that check if the web site loaded quickly and can reliably load even if the internet connection is very slow or goes offline."
+  },
+  "lighthouse-core/config/default-config.js | pwaInstallableGroupTitle": {
+    "message": "Installable",
+    "description": "Title of the Installable section of the web app category. Within this section are audits that check if Chrome supports installing the web site as an app on their device."
+  },
   "lighthouse-core/lib/i18n/i18n.js | columnCacheTTL": {
     "message": "Cache TTL",
     "description": "Label for the TTL column in data tables, entries will be the time to live value of the cache header on a web resource"
@@ -448,8 +460,8 @@
     "description": "Title of the lab data section of the Performance category. Within this section are various speed metrics which quantify the pageload performance into values presented in seconds and milliseconds. \"Lab\" is an abbreviated form of \"laboratory\", and refers to the fact that the data is from a controlled test of a website, not measurements from real users visiting that site."
   },
   "lighthouse-core/report/html/renderer/util.js | lsPerformanceCategoryDescription": {
-    "message": "[Lighthouse](https://developers.google.com/web/tools/lighthouse/) analysis of the current page on emulated 3G. Values are estimated and may vary.",
-    "description": "Explanation shown to users below performance results to inform them that the test was done with a 3G network connection and to warn them that the numbers they see will likely change slightly the next time they run Lighthouse. 'Lighthouse' becomes link text to additional documentation."
+    "message": "[Lighthouse](https://developers.google.com/web/tools/lighthouse/) analysis of the current page on an emulated mobile network. Values are estimated and may vary.",
+    "description": "Explanation shown to users below performance results to inform them that the test was done with a 4G network connection and to warn them that the numbers they see will likely change slightly the next time they run Lighthouse. 'Lighthouse' becomes link text to additional documentation."
   },
   "lighthouse-core/report/html/renderer/util.js | manualAuditsGroupTitle": {
     "message": "Additional items to manually check",

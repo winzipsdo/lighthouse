@@ -218,17 +218,17 @@ class ReportUIFeatures {
   animateHeader() {
     const collapsedHeaderHeight = 50;
     const heightDiff = this.headerHeight - collapsedHeaderHeight + this.headerOverlap;
-    const scrollPct = Math.min(1,
-      this.latestKnownScrollY / (this.headerHeight - collapsedHeaderHeight));
+    const scrollPct = Math.max(0, Math.min(1,
+      this.latestKnownScrollY / (this.headerHeight - collapsedHeaderHeight)));
 
     const scoresContainer = /** @type {HTMLElement} */ (this.scoresWrapperBg.parentElement);
 
     this.headerSticky.style.transform = `translateY(${heightDiff * scrollPct * -1}px)`;
     this.headerBackground.style.transform = `translateY(${scrollPct * this.headerOverlap}px)`;
     this.lighthouseIcon.style.transform =
-      `translate3d(calc(var(--report-width) / 2),` +
+      `translate3d(var(--report-width-half),` +
       ` calc(-100% - ${scrollPct * this.headerOverlap * -1}px), 0) scale(${1 - scrollPct})`;
-    this.lighthouseIcon.style.opacity = Math.max(0, 1 - scrollPct).toString();
+    this.lighthouseIcon.style.opacity = (1 - scrollPct).toString();
 
     // Switch up the score background & shadows
     this.scoresWrapperBg.style.opacity = (1 - scrollPct).toString();
