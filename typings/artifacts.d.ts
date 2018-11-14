@@ -74,7 +74,7 @@ declare global {
       Fonts: Artifacts.Font[];
       /** Information on poorly sized font usage and the text affected by it. */
       FontSize: Artifacts.FontSize;
-      /** The hreflang and href values of all link[rel=alternate] nodes found in HEAD. */
+      /** The largest H1, H2, IMG, and CSS background elements on the page. */
       HeroElements: Array<_HeroElement>;
       /** The hreflang and href values of all link[rel=alternate] nodes found in HEAD. */
       Hreflang: {href: string, hreflang: string}[];
