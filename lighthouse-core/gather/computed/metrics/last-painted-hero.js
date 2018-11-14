@@ -9,7 +9,7 @@ const makeComputedArtifact = require('../new-computed-artifact.js');
 const ComputedMetric = require('./metric');
 const Speedline = require('../speedline');
 
-/** @typedef {LH.Artifacts.MetricComputationData & {heroElements: LH.Artifacts['HeroElements']}} LastHeroData */
+/** @typedef {LH.Artifacts.MetricComputationData & {heroElements: LH.Artifacts['HeroElements'], viewport: LH.Artifacts['ViewportDimensions']}} LastHeroData */
 
 class LastPaintedHero extends ComputedMetric {
   /**
@@ -25,11 +25,29 @@ class LastPaintedHero extends ComputedMetric {
    *
    * @param {LH.Artifacts.Speedline} speedline
    * @param {LH.Artifacts['HeroElements'][0]} heroElement
+   * @param {LH.Artifacts['ViewportDimensions']} viewport
    */
-  static findLastChangedTiming(speedline, heroElement) {
+  static findLastChangedTiming(speedline, heroElement, viewport) {
     const analyzedFrames = speedline.frames.filter(frame => !frame.isProgressInterpolated());
     let lastChangedTs = speedline.beginning;
     console.log(analyzedFrames.length, 'frames to look at')
+
+    // Screenshots aren't always the same size as the viewport, they can be smaller so we need
+    // to scale the dimensions of the heroElement by the appropriate factor.
+    const imageData = analyzedFrames[0].getParsedImage();
+    const multiplier = imageData.width / viewport.innerWidth;
+    const scaledHeroElement = {
+      x: Math.round(heroElement.x * multiplier),
+      y: Math.round(heroElement.y * multiplier),
+      width: Math.round(heroElement.width * multiplier),
+      height: Math.round(heroElement.height * multiplier),
+    }
+
+    // Pre-determine the bounds of our hero element scan since they don't change between frames
+    const xMax = Math.min(imageData.width, scaledHeroElement.x + scaledHeroElement.width);
+    const yMax = Math.min(imageData.height, scaledHeroElement.y + scaledHeroElement.height);
+    const channels = imageData.data.length / (imageData.width * imageData.height);
+
     for (let i = 1; i < analyzedFrames.length; i++) {
       const previousFrame = analyzedFrames[i - 1];
       const frame = analyzedFrames[i];
@@ -39,13 +57,13 @@ class LastPaintedHero extends ComputedMetric {
       // If the frames did change we have to inspect the area of the hero element to see if *that* changed
       const previousImageData = previousFrame.getParsedImage();
       const imageData = frame.getParsedImage();
-      const xMax = Math.min(imageData.width, heroElement.x + heroElement.width);
-      const yMax = Math.min(imageData.height, heroElement.y + heroElement.height);
-      const channels = imageData.data.length / (imageData.width * imageData.height);
 
+      if (previousImageData.width !== imageData.width) throw new Error('Cannot measure changing screenshots');
+
+      console.log({xMax, yMax, channels, heroElement, scaledHeroElement, ...imageData, data: undefined})
       // Traverse the pixels in the area covered by the hero element
-      for (let x = heroElement.x; x < xMax; x++) {
-        for (let y = heroElement.y; y < yMax; y++) {
+      for (let x = scaledHeroElement.x; x < xMax; x++) {
+        for (let y = scaledHeroElement.y; y < yMax; y++) {
           const baseIndex = imageData.width * y + x;
           for (let c = 0; c < channels; c++) {
             const indexToCompare = baseIndex + c;
@@ -73,11 +91,11 @@ class LastPaintedHero extends ComputedMetric {
    * @return {Promise<LH.Artifacts.Metric>}
    */
   static async computeObservedMetric(data, context) {
-    const {heroElements, traceOfTab} = data;
+    const {heroElements, viewport, traceOfTab} = data;
     const speedline = await Speedline.request(data.trace, context);
 
     const lastChangedTimings = heroElements.map(element => {
-      return LastPaintedHero.findLastChangedTiming(speedline, element);
+      return LastPaintedHero.findLastChangedTiming(speedline, element, viewport);
     });
     console.log(lastChangedTimings)
     const timing = Math.max(...lastChangedTimings);

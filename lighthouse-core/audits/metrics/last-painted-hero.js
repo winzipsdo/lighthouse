@@ -30,7 +30,7 @@ class LastPaintedHero extends Audit {
       title: str_(UIStrings.title),
       description: str_(UIStrings.description),
       scoreDisplayMode: Audit.SCORING_MODES.NUMERIC,
-      requiredArtifacts: ['traces', 'devtoolsLogs', 'HeroElements'],
+      requiredArtifacts: ['traces', 'devtoolsLogs', 'HeroElements', 'ViewportDimensions'],
     };
   }
 
@@ -56,8 +56,9 @@ class LastPaintedHero extends Audit {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     const devtoolsLog = artifacts.devtoolsLogs[Audit.DEFAULT_PASS];
     const heroElements = artifacts.HeroElements;
-    const metricComputationData = {heroElements, trace, devtoolsLog, settings: context.settings};
-    const metricResult = await ComputedLastPaintedHero.request(metricComputationData, context);
+    const viewport = artifacts.ViewportDimensions;
+    const metricData = {heroElements, viewport, trace, devtoolsLog, settings: context.settings};
+    const metricResult = await ComputedLastPaintedHero.request(metricData, context);
 
     console.log(metricResult)
     return {
