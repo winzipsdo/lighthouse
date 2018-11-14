@@ -70,6 +70,7 @@ class LastPaintedHero extends ComputedMetric {
             const previousValue = previousImageData.data[indexToCompare];
             const value = imageData.data[indexToCompare];
             // If we find a different value, update the timestamp and short-circuit the loops
+            // TODO(phulce): loosen this a bit to allow minor changes between screenshots?
             if (value !== previousValue) {
               console.log({x, y, indexToCompare, value, previousValue})
               lastChangedTs = frame.getTimeStamp();
