@@ -10,6 +10,7 @@ import _NetworkRequest = require('../lighthouse-core/lib/network-request.js');
 import speedline = require('speedline-core');
 
 type _TaskNode = import('../lighthouse-core/gather/computed/main-thread-tasks').TaskNode;
+type _HeroElement = import('../lighthouse-core/gather/gatherers/hero-elements').HeroElement;
 
 type LanternSimulator = InstanceType<typeof _LanternSimulator>;
 
@@ -73,6 +74,8 @@ declare global {
       Fonts: Artifacts.Font[];
       /** Information on poorly sized font usage and the text affected by it. */
       FontSize: Artifacts.FontSize;
+      /** The hreflang and href values of all link[rel=alternate] nodes found in HEAD. */
+      HeroElements: Array<_HeroElement>;
       /** The hreflang and href values of all link[rel=alternate] nodes found in HEAD. */
       Hreflang: {href: string, hreflang: string}[];
       /** The page's document body innerText if loaded with JavaScript disabled. */

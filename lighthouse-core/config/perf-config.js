@@ -12,6 +12,25 @@ const perfConfig = {
     throttlingMethod: 'devtools',
     onlyCategories: ['performance'],
   },
+  passes: [
+    {
+      passName: 'defaultPass',
+      gatherers: [
+        'hero-elements',
+      ],
+    },
+  ],
+  audits: [
+    'metrics/last-painted-hero',
+  ],
+  // @ts-ignore TODO(bckenny): type extended Config where e.g. category.title isn't required
+  categories: {
+    'performance': {
+      auditRefs: [
+        {id: 'last-painted-hero', weight: 0, group: 'metrics'},
+      ],
+    },
+  },
 };
 
 module.exports = perfConfig;
