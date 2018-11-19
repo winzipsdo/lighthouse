@@ -82,13 +82,6 @@ class Driver {
     });
 
     /**
-     * Used for monitoring network status events during gotoURL.
-     * @type {?LH.Crdp.Security.SecurityStateChangedEvent}
-     * @private
-     */
-    this._lastSecurityState = null;
-
-    /**
      * @type {number}
      * @private
      */
@@ -498,7 +491,7 @@ class Driver {
   }
 
   /**
-   * Rejects if the security state is insecure.
+   * Returns LHError if the security state is insecure.
    * @param {LH.Crdp.Security.SecurityStateChangedEvent} securityState
    * @returns {LHError|undefined}
    */
