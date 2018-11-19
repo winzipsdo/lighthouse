@@ -498,6 +498,35 @@ class Driver {
   }
 
   /**
+   * Rejects if the security state is insecure.
+   * @param {LH.Crdp.Security.SecurityStateChangedEvent} securityState
+   * @returns {LHError|undefined}
+   */
+  checkForSecurityIssues({securityState, explanations}) {
+    if (securityState === 'insecure') {
+      const errorDef = {...LHError.errors.INSECURE_DOCUMENT_REQUEST};
+      const insecureDescriptions = explanations
+        .filter(exp => exp.securityState === 'insecure')
+        .map(exp => exp.description);
+      errorDef.message += ` ${insecureDescriptions.join(' ')}`;
+      return new LHError(errorDef);
+    }
+  }
+
+  waitForSecurityIssuesCheck() {
+    return new Promise((resolve, reject) => {
+      this.once('Security.securityStateChanged', state => {
+        const err = this.checkForSecurityIssues(state);
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  /**
    * Returns a promise that resolve when a frame has been navigated.
    * Used for detecting that our about:blank reset has been completed.
    */
@@ -883,7 +912,19 @@ class Driver {
     this.sendCommand('Page.enable');
     this.sendCommand('Emulation.setScriptExecutionDisabled', {value: disableJS});
     this.setNextProtocolTimeout(30 * 1000);
-    this.sendCommand('Page.navigate', {url});
+    this.sendCommand('Page.navigate', {url}).catch(err => {
+      // can timeout on security issue
+      if (err.code !== 'PROTOCOL_TIMEOUT') {
+        throw err;
+      }
+    });
+
+    try {
+      await this.sendCommand('Security.enable');
+      await this.waitForSecurityIssuesCheck();
+    } finally {
+      this.sendCommand('Security.disable');
+    }
 
     if (waitForNavigated) {
       await this._waitForFrameNavigated();
@@ -946,26 +987,6 @@ class Driver {
     this.setNextProtocolTimeout(timeout);
     const result = await this.sendCommand('Network.getResponseBody', {requestId});
     return result.body;
-  }
-
-  async listenForSecurityStateChanges() {
-    this.on('Security.securityStateChanged', state => {
-      this._lastSecurityState = state;
-    });
-    await this.sendCommand('Security.enable');
-  }
-
-  /**
-   * @return {LH.Crdp.Security.SecurityStateChangedEvent}
-   */
-  getSecurityState() {
-    if (!this._lastSecurityState) {
-      // happens if 'listenForSecurityStateChanges' is not called,
-      // or if some assumptions about the Security domain are wrong
-      throw new Error('Expected a security state.');
-    }
-
-    return this._lastSecurityState;
   }
 
   /**

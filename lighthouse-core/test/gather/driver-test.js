@@ -219,6 +219,7 @@ describe('Browser Driver', () => {
     }
     const replayConnection = new ReplayConnection();
     const driver = new Driver(replayConnection);
+    driver.waitForSecurityIssuesCheck = () => Promise.resolve();
 
     // Redirect in log will go through
     const startUrl = 'http://en.wikipedia.org/';
@@ -505,6 +506,41 @@ describe('Multiple tab check', () => {
         downloadThroughput: 0,
         uploadThroughput: 0,
       });
+    });
+  });
+
+  describe('.checkForSecurityIssues', () => {
+    it('returns nothing when page is secure', () => {
+      const secureSecurityState = {
+        securityState: 'secure',
+      };
+      const err = driverStub.checkForSecurityIssues(secureSecurityState);
+      assert.equal(err, undefined);
+    });
+
+    it('returns an error when page is insecure', () => {
+      const insecureSecurityState = {
+        explanations: [
+          {
+            description: 'reason 1.',
+            securityState: 'insecure',
+          },
+          {
+            description: 'blah.',
+            securityState: 'info',
+          },
+          {
+            description: 'reason 2.',
+            securityState: 'insecure',
+          },
+        ],
+        securityState: 'insecure',
+      };
+      const err = driverStub.checkForSecurityIssues(insecureSecurityState);
+      assert.equal(err.message, 'INSECURE_DOCUMENT_REQUEST');
+      assert.equal(err.code, 'INSECURE_DOCUMENT_REQUEST');
+      /* eslint-disable-next-line max-len */
+      assert.equal(err.friendlyMessage, 'The URL you have provided does not have valid security credentials. reason 1. reason 2.');
     });
   });
 });

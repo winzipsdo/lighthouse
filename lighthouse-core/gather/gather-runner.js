@@ -109,7 +109,6 @@ class GatherRunner {
     await driver.cacheNatives();
     await driver.registerPerformanceObserver();
     await driver.dismissJavaScriptDialogs();
-    await driver.listenForSecurityStateChanges();
     if (resetStorage) await driver.clearDataForOrigin(options.requestedUrl);
     log.timeEnd(status);
   }
@@ -170,22 +169,6 @@ class GatherRunner {
 
     if (errorDef) {
       return new LHError(errorDef);
-    }
-  }
-
-  /**
-   * Throws an error if the security state is insecure.
-   * @param {LH.Crdp.Security.SecurityStateChangedEvent} securityState
-   * @throws {LHError}
-   */
-  static assertNoSecurityIssues({securityState, explanations}) {
-    if (securityState === 'insecure') {
-      const errorDef = {...LHError.errors.INSECURE_DOCUMENT_REQUEST};
-      const insecureDescriptions = explanations
-        .filter(exp => exp.securityState === 'insecure')
-        .map(exp => exp.description);
-      errorDef.message += ` ${insecureDescriptions.join(' ')}`;
-      throw new LHError(errorDef);
     }
   }
 
@@ -256,8 +239,13 @@ class GatherRunner {
     if (recordTrace) await driver.beginTrace(settings);
 
     // Navigate.
-    await GatherRunner.loadPage(driver, passContext);
-    log.timeEnd(status);
+    try {
+      await GatherRunner.loadPage(driver, passContext);
+    } catch (err) {
+      throw err;
+    } finally {
+      log.timeEnd(status);
+    }
 
     const pStatus = {msg: `Running pass methods`, id: `lh:gather:pass`};
     log.time(pStatus, 'verbose');
@@ -310,8 +298,6 @@ class GatherRunner {
     const devtoolsLog = driver.endDevtoolsLog();
     const networkRecords = NetworkRecorder.recordsFromLogs(devtoolsLog);
     log.timeEnd(status);
-
-    this.assertNoSecurityIssues(driver.getSecurityState());
 
     let pageLoadError = GatherRunner.getPageLoadError(passContext.url, networkRecords);
     // If the driver was offline, a page load error is expected, so do not save it.
@@ -466,7 +452,21 @@ class GatherRunner {
           await GatherRunner.loadBlank(driver, passConfig.blankPage);
         }
         await GatherRunner.beforePass(passContext, gathererResults);
-        await GatherRunner.pass(passContext, gathererResults);
+        try {
+          await GatherRunner.pass(passContext, gathererResults);
+        } catch (err) {
+          if (err.code === LHError.errors.INSECURE_DOCUMENT_REQUEST.code) {
+            log.error('GatherRunner.pass', err.message);
+            for (const gathererResult of Object.values(gathererResults)) {
+              if (gathererResult) {
+                gathererResult.push(err);
+              }
+            }
+            break;
+          }
+
+          throw err;
+        }
         const passData = await GatherRunner.afterPass(passContext, gathererResults);
 
         // Save devtoolsLog, but networkRecords are discarded and not added onto artifacts.

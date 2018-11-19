@@ -322,7 +322,6 @@ describe('GatherRunner', function() {
       clearDataForOrigin: createCheck('calledClearStorage'),
       blockUrlPatterns: asyncFunc,
       setExtraHTTPHeaders: asyncFunc,
-      listenForSecurityStateChanges: asyncFunc,
     };
 
     return GatherRunner.setupDriver(driver, {settings: {}}).then(_ => {
@@ -382,7 +381,6 @@ describe('GatherRunner', function() {
       clearDataForOrigin: createCheck('calledClearStorage'),
       blockUrlPatterns: asyncFunc,
       setExtraHTTPHeaders: asyncFunc,
-      listenForSecurityStateChanges: asyncFunc,
     };
 
     return GatherRunner.setupDriver(driver, {
@@ -690,44 +688,6 @@ describe('GatherRunner', function() {
       assert.equal(error.message, 'DNS_FAILURE');
       assert.equal(error.code, 'DNS_FAILURE');
       assert.ok(/^DNS servers could not resolve/.test(error.friendlyMessage));
-    });
-  });
-
-  describe('#assertNoSecurityIssues', () => {
-    it('succeeds when page is secure', () => {
-      const secureSecurityState = {
-        securityState: 'secure',
-      };
-      GatherRunner.assertNoSecurityIssues(secureSecurityState);
-    });
-
-    it('fails when page is insecure', () => {
-      const insecureSecurityState = {
-        explanations: [
-          {
-            description: 'reason 1.',
-            securityState: 'insecure',
-          },
-          {
-            description: 'blah.',
-            securityState: 'info',
-          },
-          {
-            description: 'reason 2.',
-            securityState: 'insecure',
-          },
-        ],
-        securityState: 'insecure',
-      };
-      try {
-        GatherRunner.assertNoSecurityIssues(insecureSecurityState);
-        assert.fail('expected INSECURE_DOCUMENT_REQUEST LHError');
-      } catch (err) {
-        assert.equal(err.message, 'INSECURE_DOCUMENT_REQUEST');
-        assert.equal(err.code, 'INSECURE_DOCUMENT_REQUEST');
-        /* eslint-disable-next-line max-len */
-        assert.equal(err.friendlyMessage, 'The URL you have provided does not have valid security credentials. reason 1. reason 2.');
-      }
     });
   });
 
