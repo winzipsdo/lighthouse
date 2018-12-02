@@ -57,7 +57,7 @@ function runLighthouse(url, configPath, isDebug) {
     `--output-path=${outputPath}`,
     '--output=json',
     '--quiet',
-    '--port=0',
+    '--port=0',c
   ];
 
   if (isDebug) {
