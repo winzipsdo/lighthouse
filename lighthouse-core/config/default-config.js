@@ -86,6 +86,7 @@ const defaultConfig = {
     gatherers: [
       'scripts',
       'css-usage',
+      'js-usage',
       'viewport',
       'viewport-dimensions',
       'theme-color',
@@ -221,6 +222,7 @@ const defaultConfig = {
     'byte-efficiency/unminified-css',
     'byte-efficiency/unminified-javascript',
     'byte-efficiency/unused-css-rules',
+    'byte-efficiency/unused-javascript',
     'byte-efficiency/uses-webp-images',
     'byte-efficiency/uses-optimized-images',
     'byte-efficiency/uses-text-compression',
@@ -335,6 +337,7 @@ const defaultConfig = {
         {id: 'unminified-css', weight: 0, group: 'load-opportunities'},
         {id: 'unminified-javascript', weight: 0, group: 'load-opportunities'},
         {id: 'unused-css-rules', weight: 0, group: 'load-opportunities'},
+        {id: 'unused-javascript', weight: 0, group: 'load-opportunities'},
         {id: 'uses-optimized-images', weight: 0, group: 'load-opportunities'},
         {id: 'uses-webp-images', weight: 0, group: 'load-opportunities'},
         {id: 'uses-text-compression', weight: 0, group: 'load-opportunities'},
