@@ -5,21 +5,5 @@
  */
 'use strict';
 
-module.exports = {
-  collectCoverage: false,
-  coverageReporters: ['none'],
-  collectCoverageFrom: [
-    '**/lighthouse-core/**/*.js',
-    '**/lighthouse-cli/**/*.js',
-    '**/lighthouse-logger/**/*.js',
-    '!**/test/',
-    '!**/scripts/',
-  ],
-  setupTestFrameworkScriptFile: './lighthouse-core/test/test-utils.js',
-  testEnvironment: 'node',
-  testMatch: [
-    '**/lighthouse-core/**/*-test.js',
-    '**/lighthouse-cli/**/*-test.js',
-    '**/lighthouse-logger/**/*-test.js',
-  ],
-};
+/** @type {typeof import('../../lighthouse-logger')} */
+module.exports = require('lighthouse-logger');

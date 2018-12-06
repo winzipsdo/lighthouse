@@ -19,6 +19,7 @@
   "include": [
     "lighthouse-cli/**/*.js",
     "lighthouse-core/**/*.js",
+    "lighthouse-logger/**/*.js",
     "clients/**/*.js",
     "build/**/*.js",
     "./types/*.d.ts",
@@ -26,6 +27,7 @@
   "exclude": [
     "lighthouse-cli/test/**/*.js",
     "lighthouse-core/test/**/*.js",
+    "lighthouse-logger/test/**/*.js",
     "clients/test/**/*.js",
   ]
 }
