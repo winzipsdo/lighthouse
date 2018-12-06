@@ -12,12 +12,12 @@ const EventEmitter = require('events').EventEmitter;
 
 /**
  * @template {Function} F
- * @typedef {import('./helpers').ArgumentTypes<F>} ArgumentTypes
+ * @typedef {import('./type-helpers').ArgumentTypes<F>} ArgumentTypes
  */
 
 /**
  * @template T
- * @typedef {import('./helpers').IsFunction<T>} IsFunction
+ * @typedef {import('./type-helpers').IsFunction<T>} IsFunction
  */
 
 /**
