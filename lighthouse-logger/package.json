@@ -5,8 +5,5 @@
   "dependencies": {
     "debug": "^2.6.8",
     "marky": "^1.2.0"
-  },
-  "devDependencies": {
-    "@types/debug": "^0.0.31"
   }
 }
