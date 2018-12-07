@@ -1,5 +1,5 @@
 /**
- * @license Copyright 2018 Google Inc. All Rights Reserved.
+ * @license Copyright 2016 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
@@ -206,36 +206,20 @@ class Log {
      * @type {(this: *, ...args: *[]) => string}
      */
     const computeMsg = (_this, args) => {
-      let msg = '';
-      if (typeof opts.msg === 'string') {
-        msg = opts.msg;
-      } else if (typeof opts.msg === 'function') {
-        // TODO turn on --strictBindCallApply when tsc is upgraded to 3.2
-        msg = opts.msg.apply(_this, args);
-      }
-      if (!msg) {
-        throw new Error('expected msg');
-      }
-      return msg;
+      if (typeof opts.msg === 'string') return opts.msg;
+      // TODO turn on --strictBindCallApply when tsc is upgraded to 3.2
+      if (typeof opts.msg === 'function') return opts.msg.apply(_this, args);
+      throw new Error('expected msg');
     };
 
     /**
      * @type {(this: *, ...args: *[]) => string}
      */
     const computeId = (_this, args) => {
-      let id = '';
-      if (typeof opts.id === 'string') {
-        id = opts.id;
-      } else if (typeof opts.id === 'function') {
-        // TODO turn on --strictBindCallApply when tsc is upgraded to 3.2
-        id = opts.id.apply(this, args);
-      } else {
-        id = `lh:${originalFn.name}`;
-      }
-      if (!id) {
-        throw new Error('expected id');
-      }
-      return id;
+      if (typeof opts.id === 'string') return opts.id;
+      // TODO turn on --strictBindCallApply when tsc is upgraded to 3.2
+      if (typeof opts.id === 'function') return opts.id.apply(_this, args);
+      return `lh:${originalFn.name}`;
     };
 
     /**
@@ -253,6 +237,7 @@ class Log {
         result = originalFn.apply(this, args);
       } catch (err) {
         Log.timeEnd(status, timeEndLogLevel);
+        // intercept any errors and elide the time decoration from the stack trace
         err.stack = err.stack.replace(/.* at timeDecoratedFn .*\n/g, '');
         throw err;
       }
@@ -263,6 +248,7 @@ class Log {
           return value;
         }).catch((/** @type {any} */ err) => {
           Log.timeEnd(status, timeEndLogLevel);
+          // intercept any errors and elide the time decoration from the stack trace
           err.stack = err.stack.replace(/.* at timeDecoratedFn .*\n/, '');
           throw err;
         });
