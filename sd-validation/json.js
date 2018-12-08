@@ -13,8 +13,12 @@ const jsonlint = require('jsonlint-mod');
  */
 module.exports = function parseJSON(input) {
   let result;
+  const logError = console.error;
 
   try {
+    // jsonlint-mod always calls console.error when there's an error
+    // We don't want this behavior, so we stash console.error while it's executing
+    console.error = () => undefined;
     jsonlint.parse(input);
     result = JSON.parse(input);
   } catch (error) {
@@ -44,6 +48,8 @@ module.exports = function parseJSON(input) {
       },
       result,
     };
+  } finally {
+    console.error = logError;
   }
 
   return {
