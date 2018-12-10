@@ -5,13 +5,20 @@
  */
 'use strict';
 
+const makeComputedArtifact = require('../computed-artifact.js');
 const MetricArtifact = require('./metric');
-const LHError = require('../../../lib/errors');
-const TracingProcessor = require('../../../lib/traces/tracing-processor');
+const LanternMaxPotentialFID = require('./lantern-max-potential-fid.js');
+const LHError = require('../../lib/lh-error');
+const TracingProcessor = require('../../lib/traces/tracing-processor');
 
 class MaxPotentialFID extends MetricArtifact {
-  get name() {
-    return 'MaxPotentialFID';
+  /**
+   * @param {LH.Artifacts.MetricComputationData} data
+   * @param {LH.Audit.Context} context
+   * @return {Promise<LH.Artifacts.LanternMetric>}
+   */
+  static computeSimulatedMetric(data, context) {
+    return LanternMaxPotentialFID.request(data, context);
   }
 
   /**
@@ -35,4 +42,4 @@ class MaxPotentialFID extends MetricArtifact {
   }
 }
 
-module.exports = MaxPotentialFID;
+module.exports = makeComputedArtifact(MaxPotentialFID);

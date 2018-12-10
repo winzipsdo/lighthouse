@@ -6,7 +6,8 @@
 'use strict';
 
 const Audit = require('../audit');
-const i18n = require('../../lib/i18n');
+const ComputedFid = require('../../computed/metrics/max-potential-fid.js');
+const i18n = require('../../lib/i18n/i18n');
 
 const UIStrings = {
   /** The name of the metric "Maximum Potential First Input Delay" that marks the maximum estimated time between the page receiving input (a user clicking, tapping, or typing) and the page responding. Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit. */
@@ -57,7 +58,7 @@ class MaxPotentialFID extends Audit {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     const devtoolsLog = artifacts.devtoolsLogs[Audit.DEFAULT_PASS];
     const metricComputationData = {trace, devtoolsLog, settings: context.settings};
-    const metricResult = await artifacts.requestMaxPotentialFID(metricComputationData);
+    const metricResult = await ComputedFid.request(metricComputationData, context);
 
     return {
       score: Audit.computeLogNormalScore(

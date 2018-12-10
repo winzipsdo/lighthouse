@@ -5,8 +5,10 @@
  */
 'use strict';
 
+const makeComputedArtifact = require('../computed-artifact.js');
 const LanternMetricArtifact = require('./lantern-metric');
-const BaseNode = require('../../../lib/dependency-graph/base-node');
+const BaseNode = require('../../lib/dependency-graph/base-node');
+const LanternFirstContentfulPaint = require('./lantern-first-contentful-paint.js');
 
 /** @typedef {BaseNode.Node} Node */
 
@@ -18,7 +20,7 @@ class LanternMaxPotentialFID extends LanternMetricArtifact {
   /**
    * @return {LH.Gatherer.Simulation.MetricCoefficients}
    */
-  get COEFFICIENTS() {
+  static get COEFFICIENTS() {
     return {
       intercept: 0,
       optimistic: 0.5,
@@ -30,7 +32,7 @@ class LanternMaxPotentialFID extends LanternMetricArtifact {
    * @param {Node} dependencyGraph
    * @return {Node}
    */
-  getOptimisticGraph(dependencyGraph) {
+  static getOptimisticGraph(dependencyGraph) {
     return dependencyGraph;
   }
 
@@ -38,7 +40,7 @@ class LanternMaxPotentialFID extends LanternMetricArtifact {
    * @param {Node} dependencyGraph
    * @return {Node}
    */
-  getPessimisticGraph(dependencyGraph) {
+  static getPessimisticGraph(dependencyGraph) {
     return dependencyGraph;
   }
 
@@ -47,7 +49,7 @@ class LanternMaxPotentialFID extends LanternMetricArtifact {
    * @param {Object} extras
    * @return {LH.Gatherer.Simulation.Result}
    */
-  getEstimateFromSimulation(simulation, extras) {
+  static getEstimateFromSimulation(simulation, extras) {
     // Intentionally use the opposite FCP estimate, a more pessimistic FCP means that more tasks
     // are excluded from the FID computation, so a higher FCP means lower FID for same work.
     const fcpTimeInMs = extras.optimistic
@@ -67,12 +69,12 @@ class LanternMaxPotentialFID extends LanternMetricArtifact {
 
   /**
    * @param {LH.Artifacts.MetricComputationDataInput} data
-   * @param {LH.ComputedArtifacts} artifacts
+   * @param {LH.Audit.Context} context
    * @return {Promise<LH.Artifacts.LanternMetric>}
    */
-  async compute_(data, artifacts) {
-    const fcpResult = await artifacts.requestLanternFirstContentfulPaint(data);
-    return this.computeMetricWithGraphs(data, artifacts, {fcpResult});
+  static async compute_(data, context) {
+    const fcpResult = await LanternFirstContentfulPaint.request(data, context);
+    return super.computeMetricWithGraphs(data, context, {fcpResult});
   }
 
   /**
@@ -97,4 +99,4 @@ class LanternMaxPotentialFID extends LanternMetricArtifact {
   }
 }
 
-module.exports = LanternMaxPotentialFID;
+module.exports = makeComputedArtifact(LanternMaxPotentialFID);
