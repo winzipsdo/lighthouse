@@ -206,10 +206,10 @@
       "id": "max-potential-fid",
       "title": "Max Potential FID",
       "description": "The potential First Input Delay that your users could experience is the duration, in milliseconds, of the longest task.",
-      "score": null,
-      "scoreDisplayMode": "error",
-      "rawValue": null,
-      "errorMessage": "Audit error: Unimplemented"
+      "score": 0.92,
+      "scoreDisplayMode": "numeric",
+      "rawValue": 122.537,
+      "displayValue": "120 ms"
     },
     "errors-in-console": {
       "id": "errors-in-console",
@@ -4441,6 +4441,12 @@
             "timeInMs": 16
           },
           "path": "audits[estimated-input-latency].displayValue"
+        },
+        {
+          "values": {
+            "timeInMs": 122.537
+          },
+          "path": "audits[max-potential-fid].displayValue"
         }
       ],
       "lighthouse-core/audits/metrics/max-potential-fid.js | title": [

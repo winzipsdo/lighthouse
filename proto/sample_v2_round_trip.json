@@ -1248,10 +1248,10 @@
         }, 
         "max-potential-fid": {
             "description": "The potential First Input Delay that your users could experience is the duration, in milliseconds, of the longest task.", 
-            "errorMessage": "Audit error: Unimplemented", 
+            "displayValue": "120\u00a0ms", 
             "id": "max-potential-fid", 
-            "score": null, 
-            "scoreDisplayMode": "error", 
+            "score": 0.92, 
+            "scoreDisplayMode": "numeric", 
             "title": "Max Potential FID"
         }, 
         "meta-description": {

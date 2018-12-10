@@ -13,10 +13,6 @@ const LanternFirstContentfulPaint = require('./lantern-first-contentful-paint.js
 /** @typedef {BaseNode.Node} Node */
 
 class LanternMaxPotentialFID extends LanternMetricArtifact {
-  get name() {
-    return 'LanternMaxPotentialFID';
-  }
-
   /**
    * @return {LH.Gatherer.Simulation.MetricCoefficients}
    */

@@ -25,7 +25,7 @@ class MaxPotentialFID extends MetricArtifact {
    * @param {LH.Artifacts.MetricComputationData} data
    * @return {Promise<LH.Artifacts.Metric>}
    */
-  computeObservedMetric(data) {
+  static computeObservedMetric(data) {
     const {firstContentfulPaint} = data.traceOfTab.timings;
     if (!firstContentfulPaint) {
       throw new LHError(LHError.errors.NO_FCP);
