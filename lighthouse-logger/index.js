@@ -178,24 +178,25 @@ class Log {
    * @param {Status} param0
    * @param {LogAction} level
    */
-  static time({msg, id, args = []}, level = 'log') {
+  static time({msg, id, args}, level = 'log') {
     marky.mark(id);
-    Log[level]('status', msg, ...args);
+    Log[level]('status', msg, ...(args || []));
   }
 
   /**
    * @param {Status} param0
    * @param {LogAction} level
    */
-  static timeEnd({msg, id, args = []}, level = 'verbose') {
-    Log[level]('statusEnd', msg, ...args);
+  static timeEnd({msg, id, args}, level = 'verbose') {
+    Log[level]('statusEnd', msg, ...(args || []));
     marky.stop(id);
   }
 
   /* eslint-disable no-invalid-this */
   /**
    * Decorates a function, calling time/timeEnd before/after calling the original function.
-   * @template T, R
+   * @template T
+   * @template {*} R
    * @template {*[]} Args
    * @param {(this: T, ...args: Args) => R} originalFn
    * @param {TimeDecorateOpts<T, Args>} opts
@@ -207,7 +208,6 @@ class Log {
      */
     const computeMsg = (_this, args) => {
       if (typeof opts.msg === 'string') return opts.msg;
-      // TODO turn on --strictBindCallApply when tsc is upgraded to 3.2
       if (typeof opts.msg === 'function') return opts.msg.apply(_this, args);
       throw new Error('expected msg');
     };
@@ -217,7 +217,6 @@ class Log {
      */
     const computeId = (_this, args) => {
       if (typeof opts.id === 'string') return opts.id;
-      // TODO turn on --strictBindCallApply when tsc is upgraded to 3.2
       if (typeof opts.id === 'function') return opts.id.apply(_this, args);
       return `lh:${originalFn.name}`;
     };

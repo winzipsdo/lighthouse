@@ -6,6 +6,7 @@
     "allowJs": true,
     "checkJs": true,
     "strict": true,
+    "strictBindCallApply": true,
     // "listFiles": true,
     // "noErrorTruncation": true,
     "typeRoots": [
