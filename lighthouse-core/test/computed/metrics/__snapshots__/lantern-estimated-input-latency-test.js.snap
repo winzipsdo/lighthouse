@@ -4,6 +4,6 @@ exports[`Metrics: Lantern EIL should compute a simulated value 1`] = `
 Object {
   "optimistic": 93,
   "pessimistic": 158,
-  "timing": 125,
+  "timing": 100,
 }
 `;

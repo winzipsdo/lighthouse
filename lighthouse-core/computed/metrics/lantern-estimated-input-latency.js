@@ -19,8 +19,8 @@ class LanternEstimatedInputLatency extends LanternMetric {
   static get COEFFICIENTS() {
     return {
       intercept: 0,
-      optimistic: 0.5,
-      pessimistic: 0.5,
+      optimistic: 0.4,
+      pessimistic: 0.4,
     };
   }
 
