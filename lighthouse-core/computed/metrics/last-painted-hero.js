@@ -5,7 +5,7 @@
  */
 'use strict';
 
-const makeComputedArtifact = require('../new-computed-artifact.js');
+const makeComputedArtifact = require('../computed-artifact.js');
 const ComputedMetric = require('./metric');
 const Speedline = require('../speedline');
 
@@ -30,7 +30,6 @@ class LastPaintedHero extends ComputedMetric {
   static findLastChangedTiming(speedline, heroElement, viewport) {
     const analyzedFrames = speedline.frames.filter(frame => !frame.isProgressInterpolated());
     let lastChangedTs = speedline.beginning;
-    console.log(analyzedFrames.length, 'frames to look at')
 
     // Screenshots aren't always the same size as the viewport, they can be smaller so we need
     // to scale the dimensions of the heroElement by the appropriate factor.
@@ -60,7 +59,6 @@ class LastPaintedHero extends ComputedMetric {
 
       if (previousImageData.width !== imageData.width) throw new Error('Cannot measure changing screenshots');
 
-      console.log({xMax, yMax, channels, heroElement, scaledHeroElement, ...imageData, data: undefined})
       // Traverse the pixels in the area covered by the hero element
       for (let x = scaledHeroElement.x; x < xMax; x++) {
         for (let y = scaledHeroElement.y; y < yMax; y++) {
@@ -72,10 +70,10 @@ class LastPaintedHero extends ComputedMetric {
             // If we find a different value, update the timestamp and short-circuit the loops
             // TODO(phulce): loosen this a bit to allow minor changes between screenshots?
             if (value !== previousValue) {
-              console.log({x, y, indexToCompare, value, previousValue})
               lastChangedTs = frame.getTimeStamp();
               // No one knows how to read loop labels in JavaScript
               // so we'll just mess with the indexes as a more obvious multi-loop break mechanism :)
+              // i.e. this is `break;` for all three for loops
               x = y = c = Infinity;
             }
           }
@@ -98,12 +96,11 @@ class LastPaintedHero extends ComputedMetric {
     const lastChangedTimings = heroElements.map(element => {
       return LastPaintedHero.findLastChangedTiming(speedline, element, viewport);
     });
-    console.log(lastChangedTimings)
     const timing = Math.max(...lastChangedTimings);
 
     return {
       timing,
-      timestamp: traceOfTab.timestamps.navigationStart + timing * 1000,
+      timestamp: Math.round(traceOfTab.timestamps.navigationStart + timing * 1000),
     };
   }
 }

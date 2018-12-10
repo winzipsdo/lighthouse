@@ -7,7 +7,7 @@
 
 const Audit = require('../audit');
 const i18n = require('../../lib/i18n/i18n.js');
-const ComputedLastPaintedHero = require('../../gather/computed/metrics/last-painted-hero.js');
+const ComputedLastPaintedHero = require('../../computed/metrics/last-painted-hero.js');
 
 const UIStrings = {
   /** The name of the metric that marks the time at which the last of the "hero" elements was painted. A "hero" element is the largest header text or largest image element. Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit. */
@@ -60,7 +60,6 @@ class LastPaintedHero extends Audit {
     const metricData = {heroElements, viewport, trace, devtoolsLog, settings: context.settings};
     const metricResult = await ComputedLastPaintedHero.request(metricData, context);
 
-    console.log(metricResult)
     return {
       score: Audit.computeLogNormalScore(
         metricResult.timing,
