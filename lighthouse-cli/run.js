@@ -22,11 +22,12 @@ const opn = require('opn');
 
 const _RUNTIME_ERROR_CODE = 1;
 const _PROTOCOL_TIMEOUT_EXIT_CODE = 67;
+const _PAGE_HUNG_EXIT_CODE = 68;
 
 /**
  * exported for testing
  * @param {string} flags
- * @return {!Array<string>}
+ * @return {Array<string>}
  */
 function parseChromeFlags(flags = '') {
   const parsed = yargsParser(
@@ -49,8 +50,8 @@ function parseChromeFlags(flags = '') {
 /**
  * Attempts to connect to an instance of Chrome with an open remote-debugging
  * port. If none is found, launches a debuggable instance.
- * @param {!LH.Flags} flags
- * @return {Promise<LH.LaunchedChrome>}
+ * @param {LH.CliFlags} flags
+ * @return {Promise<ChromeLauncher.LaunchedChrome>}
  */
 function getDebuggableChrome(flags) {
   return ChromeLauncher.launch({
@@ -70,8 +71,14 @@ function showProtocolTimeoutError() {
   process.exit(_PROTOCOL_TIMEOUT_EXIT_CODE);
 }
 
+/** @param {LH.LighthouseError} err */
+function showPageHungError(err) {
+  console.error('Page hung:', err.friendlyMessage);
+  process.exit(_PAGE_HUNG_EXIT_CODE);
+}
+
 /**
- * @param {!LH.LighthouseError} err
+ * @param {LH.LighthouseError} err
  */
 function showRuntimeError(err) {
   console.error('Runtime error encountered:', err.friendlyMessage || err.message);
@@ -82,21 +89,23 @@ function showRuntimeError(err) {
 }
 
 /**
- * @param {!LH.LighthouseError} err
+ * @param {LH.LighthouseError} err
  */
 function handleError(err) {
   if (err.code === 'ECONNREFUSED') {
     showConnectionError();
   } else if (err.code === 'CRI_TIMEOUT') {
     showProtocolTimeoutError();
+  } else if (err.code === 'PAGE_HUNG') {
+    showPageHungError(err);
   } else {
     showRuntimeError(err);
   }
 }
 
 /**
- * @param {!LH.RunnerResult} runnerResult
- * @param {!LH.Flags} flags
+ * @param {LH.RunnerResult} runnerResult
+ * @param {LH.CliFlags} flags
  * @return {Promise<void>}
  */
 async function saveResults(runnerResult, flags) {
@@ -138,15 +147,27 @@ async function saveResults(runnerResult, flags) {
 
 /**
  * @param {string} url
- * @param {LH.Flags} flags
+ * @param {LH.CliFlags} flags
  * @param {LH.Config.Json|undefined} config
  * @return {Promise<LH.RunnerResult|void>}
  */
 function runLighthouse(url, flags, config) {
-  /** @type {!LH.LaunchedChrome} */
+  /** @type {ChromeLauncher.LaunchedChrome|undefined} */
   let launchedChrome;
   const shouldGather = flags.gatherMode || flags.gatherMode === flags.auditMode;
   let chromeP = Promise.resolve();
+
+  process.on('unhandledRejection', async (reason) => {
+    process.stderr.write(`Unhandled Rejection. Reason: ${reason}\n`);
+    try {
+      await potentiallyKillChrome();
+    } catch (err) {
+      process.stderr.write(`Couldn't quit Chrome process. ${err.toString()}\n`);
+    }
+    setTimeout(_ => {
+      process.exit(1);
+    }, 100);
+  });
 
   if (shouldGather) {
     chromeP = chromeP.then(_ =>

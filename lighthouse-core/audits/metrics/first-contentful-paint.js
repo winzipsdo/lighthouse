@@ -6,14 +6,15 @@
 'use strict';
 
 const Audit = require('../audit');
-const i18n = require('../../lib/i18n');
+const i18n = require('../../lib/i18n/i18n.js');
+const ComputedFcp = require('../../computed/metrics/first-contentful-paint.js');
 
 const UIStrings = {
   /** The name of the metric that marks the time at which the first text or image is painted by the browser. Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit. */
   title: 'First Contentful Paint',
   /** Description of the First Contentful Paint (FCP) metric, which marks the time at which the first text or image is painted by the browser. This is displayed within a tooltip when the user hovers on the metric name to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
-  description: 'First contentful paint marks the time at which the first text or image is ' +
-      `painted. [Learn more](https://developers.google.com/web/fundamentals/performance/user-centric-performance-metrics#first_paint_and_first_contentful_paint).`,
+  description: 'First Contentful Paint marks the time at which the first text or image is ' +
+      `painted. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/first-contentful-paint).`,
 };
 
 const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
@@ -54,7 +55,7 @@ class FirstContentfulPaint extends Audit {
     const trace = artifacts.traces[Audit.DEFAULT_PASS];
     const devtoolsLog = artifacts.devtoolsLogs[Audit.DEFAULT_PASS];
     const metricComputationData = {trace, devtoolsLog, settings: context.settings};
-    const metricResult = await artifacts.requestFirstContentfulPaint(metricComputationData);
+    const metricResult = await ComputedFcp.request(metricComputationData, context);
 
     return {
       score: Audit.computeLogNormalScore(
@@ -63,7 +64,7 @@ class FirstContentfulPaint extends Audit {
         context.options.scoreMedian
       ),
       rawValue: metricResult.timing,
-      displayValue: str_(i18n.UIStrings.ms, {timeInMs: metricResult.timing}),
+      displayValue: str_(i18n.UIStrings.seconds, {timeInMs: metricResult.timing}),
     };
   }
 }
