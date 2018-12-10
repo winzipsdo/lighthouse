@@ -24,7 +24,9 @@ describe('Metrics: Last Painted Hero', () => {
       getTimeStamp: () => ts,
     });
 
-    let frames, speedline, viewport;
+    let frames;
+    let speedline;
+    let viewport;
 
     beforeEach(() => {
       frames = [

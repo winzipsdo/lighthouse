@@ -8,6 +8,8 @@
 const Gatherer = require('./gatherer');
 const pageFunctions = require('../../lib/page-functions');
 
+/* eslint-env node, browser */
+
 /** @typedef {'h1'|'h2'|'img'|'backgroundImage'} HeroElementName */
 
 /**
@@ -26,6 +28,7 @@ const pageFunctions = require('../../lib/page-functions');
  * @param {Array<HTMLElement>} allDocumentElements
  * @return {Array<HeroElement>}
  */
+/* istanbul ignore next */
 function findHeroElements(allDocumentElements) {
   /**
    * @param {HeroElementName} name

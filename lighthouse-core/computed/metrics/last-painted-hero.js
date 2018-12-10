@@ -17,6 +17,7 @@ class LastPaintedHero extends ComputedMetric {
    * @param {LH.Audit.Context} context
    * @return {Promise<LH.Artifacts.LanternMetric>}
    */
+  // eslint-disable-next-line no-unused-vars
   static computeSimulatedMetric(data, context) {
     throw new Error('Last Painted Hero not yet supported in Lantern');
   }
@@ -40,7 +41,7 @@ class LastPaintedHero extends ComputedMetric {
       y: Math.round(heroElement.y * multiplier),
       width: Math.round(heroElement.width * multiplier),
       height: Math.round(heroElement.height * multiplier),
-    }
+    };
 
     // Pre-determine the bounds of our hero element scan since they don't change between frames
     const xMax = Math.min(imageData.width, scaledHeroElement.x + scaledHeroElement.width);
@@ -57,8 +58,9 @@ class LastPaintedHero extends ComputedMetric {
       const previousImageData = previousFrame.getParsedImage();
       const imageData = frame.getParsedImage();
 
-      if (previousImageData.width !== imageData.width) throw new Error('Cannot measure changing screenshots');
-
+      if (previousImageData.width !== imageData.width) {
+        throw new Error('Cannot measure changing screenshots');
+      }
       // Traverse the pixels in the area covered by the hero element
       for (let x = scaledHeroElement.x; x < xMax; x++) {
         for (let y = scaledHeroElement.y; y < yMax; y++) {

@@ -691,6 +691,14 @@
     "message": "Time to Interactive",
     "description": "The name of the metric that marks the time at which the page is fully loaded and is able to quickly respond to user input (clicks, taps, and keypresses feel responsive). Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit."
   },
+  "lighthouse-core/audits/metrics/last-painted-hero.js | description": {
+    "message": "Last Painted Hero marks the time at which the last of the \"hero\" elements was painted. A \"hero\" element is the largest header text or largest image element. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/first-contentful-paint).",
+    "description": "Description of the Last Painted Hero metric, which marks the time at which the last of the \"hero\" elements was painted. A \"hero\" element is the largest header text or largest image element. This is displayed within a tooltip when the user hovers on the metric name to see more. No character length limits. 'Learn More' becomes link text to additional documentation."
+  },
+  "lighthouse-core/audits/metrics/last-painted-hero.js | title": {
+    "message": "Last Painted Hero",
+    "description": "The name of the metric that marks the time at which the last of the \"hero\" elements was painted. A \"hero\" element is the largest header text or largest image element. Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit."
+  },
   "lighthouse-core/audits/metrics/speed-index.js | description": {
     "message": "Speed Index shows how quickly the contents of a page are visibly populated. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/speed-index).",
     "description": "Description of the Speed Index metric, which summarizes how quickly the page looked visually complete. This is displayed within a tooltip when the user hovers on the metric name to see more. No character length limits. 'Learn More' becomes link text to additional documentation."
