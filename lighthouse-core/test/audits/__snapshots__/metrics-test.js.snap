@@ -2,7 +2,7 @@
 
 exports[`Performance: metrics evaluates valid input correctly 1`] = `
 Object {
-  "estimatedInputLatency": 100,
+  "estimatedInputLatency": 125,
   "estimatedInputLatencyTs": undefined,
   "firstCPUIdle": 3351,
   "firstCPUIdleTs": undefined,

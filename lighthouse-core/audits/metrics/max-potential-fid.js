@@ -14,7 +14,7 @@ const UIStrings = {
   title: 'Max Potential FID',
   /** Description of the Estimated Input Latency metric that estimates the amount of time, in milliseconds, that the app takes to respond to user input. This description is displayed within a tooltip when the user hovers on the metric name to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'The potential First Input Delay that your users could experience is the ' +
-      'duration, in milliseconds, of the longest task.'
+      'duration, in milliseconds, of the longest task.',
 };
 
 const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
