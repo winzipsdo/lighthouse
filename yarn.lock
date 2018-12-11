@@ -5486,12 +5486,12 @@ jsonify@~0.0.0:
   resolved "https://registry.yarnpkg.com/jsonify/-/jsonify-0.0.0.tgz#2c74b6ee41d93ca51b7b5aaee8f503631d252a73"
   integrity sha1-LHS27kHZPKUbe1qu6PUDYx0lKnM=
 
-jsonld@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/jsonld/-/jsonld-1.1.0.tgz#afcb168c44557a7bddead4d4513c3cbcae3bc5b9"
-  integrity sha512-tx87xNtu2hGabr7mhSyXTI8q+Fz3pl+50B/JislFPwAz8ud0KTTQpNjU74tJIegFAHve9UFYzzj4YVTIrac0Hw==
+jsonld@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/jsonld/-/jsonld-1.2.0.tgz#a16a9e7c2058e2544ed0e6b4a9d5fddb91d27411"
+  integrity sha512-hNdJqoM6l8tN6a0ZJPbgGvcOpE07cG9p4LDQEpxE5HqYqVjl8An4O7VNJPtqEykXzkwGAb2LasTFeJ1gF0XxKA==
   dependencies:
-    rdf-canonize "^0.2.1"
+    rdf-canonize "^0.3.0"
     request "^2.83.0"
     semver "^5.5.0"
     xmldom "0.1.19"
@@ -6358,7 +6358,7 @@ mute-stream@0.0.7:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
   integrity sha1-MHXOk7whuPq0PhvE2n6BFe0ee6s=
 
-nan@^2.10.0:
+nan@^2.11.1:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
   integrity sha512-iji6k87OSXa0CcrLl9z+ZiYSuR2o+c0bGuNmXdrhTQTakxytAFsC56SArGYoiHlJlFoHSnvmhpceZJaXkVuOtA==
@@ -6415,7 +6415,7 @@ nested-error-stacks@^2.0.0:
   resolved "https://registry.yarnpkg.com/nested-error-stacks/-/nested-error-stacks-2.1.0.tgz#0fbdcf3e13fe4994781280524f8b96b0cdff9c61"
   integrity sha512-AO81vsIO1k1sM4Zrd6Hu7regmJN1NSiAja10gc4bX3F0wd+9rQmcuHQaHVQCYIEC8iFXnE+mavh23GOt7wBgug==
 
-node-forge@^0.7.1:
+node-forge@^0.7.6:
   version "0.7.6"
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.7.6.tgz#fdf3b418aee1f94f0ef642cd63486c77ca9724ac"
   integrity sha512-sol30LUpz1jQFBjOKwbjxijiE3b6pjd74YwfD0fJOKPjF+fONKb2Yg8rYgS6+bK6VDl+/wfr4IYpC7jDzLUIfw==
@@ -7329,15 +7329,24 @@ rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-rdf-canonize@^0.2.1:
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/rdf-canonize/-/rdf-canonize-0.2.5.tgz#dc761d42a2e9e6bf6eec7e0e352fd5b10ff4e75a"
-  integrity sha512-ZSOcoziIkics9lZvFRoqRHUWoITLbXeKqXNxTuvchTf9c74/yOzzZCKxS+aTCGQp81fQZhnKUM/NsgyiBS0Mig==
+rdf-canonize-native@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/rdf-canonize-native/-/rdf-canonize-native-0.3.0.tgz#de6c4a67345adf402520846778f5ad67728e50e2"
+  integrity sha512-t/EI0B0GSV+eM2d/Nnxvo5PHomO5Qc5EzBxxtxcrzd8Hx9wHGbh6VFCn4A5/RehQATeoAfynifszJZO+bDO8Ow==
   dependencies:
     bindings "^1.3.0"
-    nan "^2.10.0"
-    node-forge "^0.7.1"
-    semver "^5.4.1"
+    nan "^2.11.1"
+    semver "^5.6.0"
+
+rdf-canonize@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/rdf-canonize/-/rdf-canonize-0.3.0.tgz#f33c1725a4496d8c47871b376e5a9b873399ecea"
+  integrity sha512-LHyT23nTPy9ASARyoYg/zvNNysJ3cfUAFpPJBbGIjhoENHiUK+l/T3z7oAttqNMBvrJRJuEvcuhyT+YsnC73Dg==
+  dependencies:
+    node-forge "^0.7.6"
+    semver "^5.6.0"
+  optionalDependencies:
+    rdf-canonize-native "^0.3.0"
 
 read-only-stream@^2.0.0:
   version "2.0.0"
@@ -7925,6 +7934,11 @@ semver@^5.5.0:
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.1.tgz#7dfdd8814bdb7cabc7be0fb1d734cfb66c940477"
   integrity sha512-PqpAxfrEhlSUWge8dwIp4tZnQ25DIOthpiaHNIthsjEFQD6EvqUKUDM7L8O2rShkFccYo1VjJR0coWfNkCubRw==
+
+semver@^5.6.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"
+  integrity sha512-RS9R6R35NYgQn++fkDWaOmqGoj4Ek9gGs+DPxNUZKuwE183xjJroKvyo1IzVFeXvUrvmALy6FWD5xrdJT25gMg==
 
 sequencify@~0.0.7:
   version "0.0.7"

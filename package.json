@@ -149,7 +149,7 @@
     "intl-messageformat-parser": "^1.4.0",
     "jpeg-js": "0.1.2",
     "js-library-detector": "^5.1.0",
-    "jsonld": "^1.1.0",
+    "jsonld": "^1.2.0",
     "jsonlint-mod": "^1.7.2",
     "lighthouse-logger": "^1.2.0",
     "lodash.isequal": "^4.5.0",
@@ -169,8 +169,7 @@
     "yargs-parser": "7.0.0"
   },
   "resolutions": {
-    "chrome-launcher/@types/node": "*",
-    "rdf-canonize": "0.3.0"
+    "chrome-launcher/@types/node": "*"
   },
   "repository": "GoogleChrome/lighthouse",
   "keywords": [
