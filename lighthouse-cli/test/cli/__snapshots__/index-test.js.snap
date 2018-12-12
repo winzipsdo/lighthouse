@@ -28,6 +28,9 @@ Object {
       "path": "metrics/first-meaningful-paint",
     },
     Object {
+      "path": "metrics/last-painted-hero",
+    },
+    Object {
       "path": "load-fast-enough-for-pwa",
     },
     Object {
@@ -683,6 +686,10 @@ Object {
           "weight": 0,
         },
         Object {
+          "id": "last-painted-hero",
+          "weight": 0,
+        },
+        Object {
           "group": "load-opportunities",
           "id": "render-blocking-resources",
           "weight": 0,
@@ -1062,6 +1069,9 @@ Object {
         },
         Object {
           "path": "accessibility",
+        },
+        Object {
+          "path": "hero-elements",
         },
         Object {
           "path": "dobetterweb/anchors-with-no-rel-noopener",
