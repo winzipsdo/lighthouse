@@ -94,6 +94,7 @@ const defaultConfig = {
       'chrome-console-messages',
       'image-usage',
       'accessibility',
+      'hero-elements',
       'dobetterweb/anchors-with-no-rel-noopener',
       'dobetterweb/appcache',
       'dobetterweb/doctype',
@@ -139,6 +140,7 @@ const defaultConfig = {
     'without-javascript',
     'metrics/first-contentful-paint',
     'metrics/first-meaningful-paint',
+    'metrics/last-painted-hero',
     'load-fast-enough-for-pwa',
     'metrics/speed-index',
     'screenshot-thumbnails',
@@ -328,6 +330,7 @@ const defaultConfig = {
         {id: 'interactive', weight: 5, group: 'metrics'},
         {id: 'first-cpu-idle', weight: 2, group: 'metrics'},
         {id: 'estimated-input-latency', weight: 0, group: 'metrics'},
+        {id: 'last-painted-hero', weight: 0}, // intentionally leave out of a group, it's JSON only
 
         {id: 'render-blocking-resources', weight: 0, group: 'load-opportunities'},
         {id: 'uses-responsive-images', weight: 0, group: 'load-opportunities'},
