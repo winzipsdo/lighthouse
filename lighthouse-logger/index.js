@@ -30,7 +30,7 @@ const EventEmitter = require('events').EventEmitter;
  * @typedef {'verbose'|'error'|'silent'|'log'|'info'|'warn'} LogLevel
  */
 /**
- * @typedef {LogLevel & keyof typeof Log} LogAction
+ * @typedef {'verbose'|'error'|'log'|'warn'} LogAction
  */
 
 /**
@@ -43,8 +43,7 @@ const EventEmitter = require('events').EventEmitter;
 
 const isWindows = process.platform === 'win32';
 
-// process.browser is set when browserify'd via the `process` npm module
-// @ts-ignore
+// @ts-ignore - process.browser is set when browserify'd via the `process` npm module
 const isBrowser = process.browser;
 
 const colors = {
@@ -56,8 +55,7 @@ const colors = {
   magenta: isBrowser ? 'palevioletred' : 5,
 };
 
-// whitelist non-red/yellow colors for debug()
-// @ts-ignore
+// @ts-ignore - whitelist non-red/yellow colors for debug(). not public
 debug.colors = [colors.cyan, colors.green, colors.blue, colors.magenta];
 
 class Emitter extends EventEmitter {
@@ -86,7 +84,7 @@ class Emitter extends EventEmitter {
   }
 }
 
-/** @type {{[k: string] : debug.IDebugger}} */
+/** @type {Record<string, debug.IDebugger>} */
 const loggersByTitle = {};
 
 const loggingBufferColumns = 25;
@@ -231,7 +229,7 @@ class Log {
       } catch (err) {
         Log.timeEnd(status, timeEndLogLevel);
         // intercept any errors and elide the time decoration from the stack trace
-        err.stack = err.stack.replace(/.* at timeDecoratedFn .*\n/g, '');
+        err.stack = err.stack.replace(/.* at Function\.timeDecoratedFn .*\n/g, '');
         throw err;
       }
 
@@ -242,7 +240,7 @@ class Log {
         }).catch((/** @type {any} */ err) => {
           Log.timeEnd(status, timeEndLogLevel);
           // intercept any errors and elide the time decoration from the stack trace
-          err.stack = err.stack.replace(/.* at timeDecoratedFn .*\n/, '');
+          err.stack = err.stack.replace(/.* at Function\.timeDecoratedFn .*\n/, '');
           throw err;
         });
       } else {
