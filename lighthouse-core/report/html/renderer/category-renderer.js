@@ -22,7 +22,7 @@
 /** @typedef {import('./report-renderer.js')} ReportRenderer */
 /** @typedef {import('./details-renderer.js')} DetailsRenderer */
 /** @typedef {import('./util.js')} Util */
-/** @typedef {'failed'|'manual'|'passed'|'not-applicable'} TopLevelClumpId */
+/** @typedef {'failed'|'manual'|'passed'|'notApplicable'} TopLevelClumpId */
 
 class CategoryRenderer {
   /**
@@ -56,7 +56,7 @@ class CategoryRenderer {
         title: Util.UIStrings.passedAuditsGroupTitle,
         className: 'lh-clump--passed',
       },
-      'not-applicable': {
+      'notApplicable': {
         title: Util.UIStrings.notApplicableAuditsGroupTitle,
         className: 'lh-clump--not-applicable',
       },
@@ -370,7 +370,7 @@ class CategoryRenderer {
    */
   _getClumpIdForAuditRef(auditRef) {
     const scoreDisplayMode = auditRef.result.scoreDisplayMode;
-    if (scoreDisplayMode === 'manual' || scoreDisplayMode === 'not-applicable') {
+    if (scoreDisplayMode === 'manual' || scoreDisplayMode === 'notApplicable') {
       return scoreDisplayMode;
     }
 
@@ -397,7 +397,7 @@ class CategoryRenderer {
     clumps.set('failed', []);
     clumps.set('manual', []);
     clumps.set('passed', []);
-    clumps.set('not-applicable', []);
+    clumps.set('notApplicable', []);
 
     // Sort audits into clumps.
     for (const auditRef of category.auditRefs) {

@@ -66,8 +66,9 @@ class Util {
     // TODO: remove when underscore/hyphen proto issue is resolved. See #6371, #6201.
     for (const audit of Object.values(clone.audits)) {
       // @ts-ignore tsc rightly flags that this value shouldn't occur.
+      // TODO(exterkamp): remove this when proto enum removes 'not_applicable'
       if (audit.scoreDisplayMode === 'not_applicable') {
-        audit.scoreDisplayMode = 'not-applicable';
+        audit.scoreDisplayMode = 'notApplicable';
       }
     }
 
@@ -163,7 +164,7 @@ class Util {
    */
   static calculateRating(score, scoreDisplayMode) {
     // Handle edge cases first, manual and not applicable receive 'pass', errored audits receive 'error'
-    if (scoreDisplayMode === 'manual' || scoreDisplayMode === 'not-applicable') {
+    if (scoreDisplayMode === 'manual' || scoreDisplayMode === 'notApplicable') {
       return RATINGS.PASS.label;
     } else if (scoreDisplayMode === 'error') {
       return RATINGS.ERROR.label;

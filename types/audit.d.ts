@@ -32,7 +32,7 @@ declare global {
       BINARY: 'binary';
       MANUAL: 'manual';
       INFORMATIVE: 'informative';
-      NOT_APPLICABLE: 'not-applicable';
+      NOT_APPLICABLE: 'notApplicable';
       ERROR: 'error';
     }
 
@@ -124,7 +124,7 @@ declare global {
       warnings?: string[];
       score?: number;
       extendedInfo?: {[p: string]: any};
-      /** Overrides scoreDisplayMode with not-applicable if set to true */
+      /** Overrides scoreDisplayMode with notApplicable if set to true */
       notApplicable?: boolean;
       // TODO(bckenny): define details
       details?: object;

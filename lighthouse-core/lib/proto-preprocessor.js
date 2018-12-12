@@ -45,9 +45,12 @@ function processForProto(result) {
 
       // Rewrite the 'not-applicable' scoreDisplayMode to 'not_applicable'. #6201
       if (audit.scoreDisplayMode) {
+        // @ts-ignore ts properly flags this as invalid as it should not happen,
+        // but remains in preprocessor to protect from proto translation errors from
+        // old LHRs.
         if (audit.scoreDisplayMode === 'not-applicable') {
           // @ts-ignore Breaking the LH.Result type
-          audit.scoreDisplayMode = 'not_applicable';
+          audit.scoreDisplayMode = 'notApplicable';
         }
       }
       // Drop raw values. #6199
