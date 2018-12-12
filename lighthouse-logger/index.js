@@ -40,14 +40,10 @@ const EventEmitter = require('events').EventEmitter;
 
 /**
  * @typedef {{
- *   msg:string,
+ *   msg: string,
  *   id: string,
  *   args?: any[],
  * }} Status
- */
-
-/**
- * @typedef {[any, ...any[]]} ArrayAtLeastOne
  */
 
 const isWindows = process.platform === 'win32';
@@ -74,11 +70,12 @@ class Emitter extends EventEmitter {
    * Fires off all status updates. Listen with
    * `require('lib/log').events.addListener('status', callback)`
    * @param {string} title
+   * @param {string|Error} message
    * @param {!Array<*>} argsArray
    */
-  issueStatus(title, argsArray) {
+  issueStatus(title, message, argsArray) {
     if (title === 'status' || title === 'statusEnd') {
-      this.emit(title, [title, ...argsArray]);
+      this.emit(title, [title, message, ...argsArray]);
     }
   }
 
@@ -86,10 +83,11 @@ class Emitter extends EventEmitter {
    * Fires off all warnings. Listen with
    * `require('lib/log').events.addListener('warning', callback)`
    * @param {string} title
+   * @param {string|Error} message
    * @param {!Array<*>} argsArray
    */
-  issueWarning(title, argsArray) {
-    this.emit('warning', [title, ...argsArray]);
+  issueWarning(title, message, argsArray) {
+    this.emit('warning', [title, message, ...argsArray]);
   }
 }
 
@@ -104,11 +102,12 @@ let level_;
 class Log {
   /**
    * @param {string} title
-   * @param {ArrayAtLeastOne} argsArray
+   * @param {string|Error} message
+   * @param {Array<any>} argsArray
    */
-  static _logToStdErr(title, argsArray) {
+  static _logToStdErr(title, message, argsArray) {
     const log = Log.loggerfn(title);
-    log(...argsArray);
+    log(message, ...argsArray);
   }
 
   /**
@@ -164,7 +163,7 @@ class Log {
     // IO.read blacklisted here to avoid logging megabytes of trace data
     const snippet = (data.params && method !== 'IO.read') ?
       JSON.stringify(data.params).substr(0, maxLength) : '';
-    Log._logToStdErr(`${prefix}:${level || ''}`, [method, snippet]);
+    Log._logToStdErr(`${prefix}:${level || ''}`, method, [snippet]);
   }
 
   /**
@@ -175,7 +174,7 @@ class Log {
   }
 
   /**
-   * @param {Status} param0
+   * @param {Status} status
    * @param {LogAction} level
    */
   static time({msg, id, args}, level = 'log') {
@@ -184,7 +183,7 @@ class Log {
   }
 
   /**
-   * @param {Status} param0
+   * @param {Status} status
    * @param {LogAction} level
    */
   static timeEnd({msg, id, args}, level = 'verbose') {
@@ -286,37 +285,41 @@ class Log {
 
   /**
    * @param {string} title
-   * @param {ArrayAtLeastOne} args
+   * @param {string|Error} message
+   * @param {Array<any>} args
    */
-  static log(title, ...args) {
-    Log.events.issueStatus(title, args);
-    Log._logToStdErr(title, args);
+  static log(title, message, ...args) {
+    Log.events.issueStatus(title, message, args);
+    Log._logToStdErr(title, message, args);
   }
 
   /**
    * @param {string} title
-   * @param {ArrayAtLeastOne} args
+   * @param {string|Error} message
+   * @param {Array<any>} args
    */
-  static warn(title, ...args) {
-    Log.events.issueWarning(title, args);
-    Log._logToStdErr(`${title}:warn`, args);
+  static warn(title, message, ...args) {
+    Log.events.issueWarning(title, message, args);
+    Log._logToStdErr(`${title}:warn`, message, args);
   }
 
   /**
    * @param {string} title
-   * @param {ArrayAtLeastOne} args
+   * @param {string|Error} message
+   * @param {Array<any>} args
    */
-  static error(title, ...args) {
-    Log._logToStdErr(`${title}:error`, args);
+  static error(title, message, ...args) {
+    Log._logToStdErr(`${title}:error`, message, args);
   }
 
   /**
    * @param {string} title
-   * @param {ArrayAtLeastOne} args
+   * @param {string|Error} message
+   * @param {Array<any>} args
    */
-  static verbose(title, ...args) {
-    Log.events.issueStatus(title, args);
-    Log._logToStdErr(`${title}:verbose`, args);
+  static verbose(title, message, ...args) {
+    Log.events.issueStatus(title, message, args);
+    Log._logToStdErr(`${title}:verbose`, message, args);
   }
 
   /**
