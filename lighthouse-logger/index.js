@@ -11,11 +11,6 @@ const marky = require('marky');
 const EventEmitter = require('events').EventEmitter;
 
 /**
- * @template {Function} F
- * @typedef {import('./type-helpers').ArgumentTypes<F>} ArgumentTypes
- */
-
-/**
  * @template T
  * @typedef {import('./type-helpers').IsFunction<T>} IsFunction
  */
@@ -266,7 +261,7 @@ class Log {
    * @template {Object|Function} Class
    * @template {keyof Class} Prop
    * @param {Class} klass
-   * @param {{[key in Prop]: TimeDecorateOpts<Class, ArgumentTypes<IsFunction<Class[key]>>>}} methods
+   * @param {{[key in Prop]: TimeDecorateOpts<Class, Parameters<IsFunction<Class[key]>>>}} methods
    */
   static timeDecorateClass(klass, methods) {
     for (const [method, opts] of Object.entries(methods)) {
