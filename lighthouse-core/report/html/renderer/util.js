@@ -65,9 +65,10 @@ class Util {
     // The proto process turns 'not-applicable' into 'not_applicable'. Correct this to support both.
     // TODO: remove when underscore/hyphen proto issue is resolved. See #6371, #6201.
     for (const audit of Object.values(clone.audits)) {
-      // @ts-ignore tsc rightly flags that this value shouldn't occur.
       // TODO(exterkamp): remove this when proto enum removes 'not_applicable'
-      if (audit.scoreDisplayMode === 'not_applicable') {
+      // @ts-ignore tsc rightly flags that this value shouldn't occur.
+      // eslint-disable-next-line max-len
+      if (audit.scoreDisplayMode === 'not_applicable' || audit.scoreDisplayMode === 'not-applicable') {
         audit.scoreDisplayMode = 'notApplicable';
       }
     }
