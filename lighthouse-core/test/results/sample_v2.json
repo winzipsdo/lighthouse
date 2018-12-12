@@ -99,6 +99,15 @@
       "rawValue": 3969.136,
       "displayValue": "4.0 s"
     },
+    "last-painted-hero": {
+      "id": "last-painted-hero",
+      "title": "Last Painted Hero",
+      "description": "Last Painted Hero marks the time at which the last of the \"hero\" elements was painted. A \"hero\" element is the largest header text or largest image element. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/first-contentful-paint).",
+      "score": 0.51,
+      "scoreDisplayMode": "numeric",
+      "rawValue": 3969.430999994278,
+      "displayValue": "4.0 s"
+    },
     "load-fast-enough-for-pwa": {
       "id": "load-fast-enough-for-pwa",
       "title": "Page load is fast enough on mobile networks",
@@ -2791,6 +2800,10 @@
           "group": "metrics"
         },
         {
+          "id": "last-painted-hero",
+          "weight": 0
+        },
+        {
           "id": "render-blocking-resources",
           "weight": 0,
           "group": "load-opportunities"
@@ -3541,6 +3554,24 @@
       },
       {
         "startTime": 0,
+        "name": "lh:audit:last-painted-hero",
+        "duration": 100,
+        "entryType": "measure"
+      },
+      {
+        "startTime": 0,
+        "name": "lh:computed:LastPaintedHero",
+        "duration": 100,
+        "entryType": "measure"
+      },
+      {
+        "startTime": 0,
+        "name": "lh:computed:Speedline",
+        "duration": 100,
+        "entryType": "measure"
+      },
+      {
+        "startTime": 0,
         "name": "lh:audit:load-fast-enough-for-pwa",
         "duration": 100,
         "entryType": "measure"
@@ -3560,12 +3591,6 @@
       {
         "startTime": 0,
         "name": "lh:computed:SpeedIndex",
-        "duration": 100,
-        "entryType": "measure"
-      },
-      {
-        "startTime": 0,
-        "name": "lh:computed:Speedline",
         "duration": 100,
         "entryType": "measure"
       },
@@ -4363,6 +4388,12 @@
         },
         {
           "values": {
+            "timeInMs": 3969.430999994278
+          },
+          "path": "audits[last-painted-hero].displayValue"
+        },
+        {
+          "values": {
             "timeInMs": 4417
           },
           "path": "audits[speed-index].displayValue"
@@ -4397,6 +4428,12 @@
       ],
       "lighthouse-core/audits/metrics/first-meaningful-paint.js | description": [
         "audits[first-meaningful-paint].description"
+      ],
+      "lighthouse-core/audits/metrics/last-painted-hero.js | title": [
+        "audits[last-painted-hero].title"
+      ],
+      "lighthouse-core/audits/metrics/last-painted-hero.js | description": [
+        "audits[last-painted-hero].description"
       ],
       "lighthouse-core/audits/metrics/speed-index.js | title": [
         "audits[speed-index].title"
