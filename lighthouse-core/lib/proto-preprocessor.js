@@ -48,7 +48,8 @@ function processForProto(result) {
         // @ts-ignore ts properly flags this as invalid as it should not happen,
         // but remains in preprocessor to protect from proto translation errors from
         // old LHRs.
-        if (audit.scoreDisplayMode === 'not-applicable') {
+        // eslint-disable-next-line max-len
+        if (audit.scoreDisplayMode === 'not-applicable' || audit.scoreDisplayMode === 'not_applicable') {
           // @ts-ignore Breaking the LH.Result type
           audit.scoreDisplayMode = 'notApplicable';
         }
