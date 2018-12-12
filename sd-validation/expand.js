@@ -15,15 +15,15 @@ const SCHEMA_ORG_HOST = 'schema.org';
  * Custom loader that prevents network calls and allows us to return local version of the
  * schema.org document
  * @param {string} schemaUrl
- * @param {function(null, Object):void} callback
+ * @param {function(null|Error, Object|undefined):void} callback
  */
-function loadDocument(schemaUrl, callback) {
+function documentLoader(schemaUrl, callback) {
   let urlObj = null;
 
   try {
     urlObj = new URL(schemaUrl, 'http://example.com');
   } catch (e) {
-    throw new Error('Error parsing URL: ' + schemaUrl);
+    return callback(Error('Error parsing URL: ' + schemaUrl), undefined);
   }
 
   if (urlObj && urlObj.host === SCHEMA_ORG_HOST && urlObj.pathname === '/') {
@@ -43,37 +43,14 @@ function loadDocument(schemaUrl, callback) {
  * (https://json-ld.org/spec/latest/json-ld-api/#expansion).
  *
  * @param {Object} inputObject
- * @returns {Object}
+ * @returns {Promise<Object>}
  */
-module.exports = function expand(inputObject) {
-  /** @type {function(string):void} */
-  let resolve;
-  /** @type {function(string):void} */
-  let reject;
-  const promise = new Promise((res, rej) => {
-    resolve = res; reject = rej;
-  });
-
-  const documentLoader = (
-      /** @type {string} **/ schemaUrl,
-      /** @type {function(null, Object):void} **/ callback
-  ) => {
-    try {
-      return loadDocument(schemaUrl, callback);
-    } catch (e) {
-      reject(e.message);
-    }
-  };
-
-  jsonld.expand(inputObject, {
-    documentLoader,
-  }, (/** @type {string} */e, /** @type {Object} **/expanded) => {
-    if (e) {
-      reject('Expansion error: ' + e.toString());
-    } else {
-      resolve(expanded);
-    }
-  });
-
-  return promise;
+module.exports = async function expand(inputObject) {
+  try {
+    return await jsonld.expand(inputObject, {documentLoader});
+  } catch (err) {
+    // jsonld wraps real errors in a bunch of junk, so see we have an underlying error first
+    if (err.details && err.details.cause) throw err.details.cause;
+    throw err;
+  }
 };

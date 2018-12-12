@@ -19,6 +19,7 @@
   "include": [
     "lighthouse-cli/**/*.js",
     "lighthouse-core/**/*.js",
+    "sd-validation/**/*.js",
     "clients/**/*.js",
     "build/**/*.js",
     "./types/*.d.ts",
@@ -26,6 +27,8 @@
   "exclude": [
     "lighthouse-cli/test/**/*.js",
     "lighthouse-core/test/**/*.js",
+    "sd-validation/test/**/*.js",
+    "sd-validation/scripts/**/*.js",
     "clients/test/**/*.js",
   ]
 }
