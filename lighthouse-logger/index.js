@@ -6,7 +6,6 @@
 'use strict';
 
 const debug = require('debug');
-// @ts-ignore
 const marky = require('marky');
 const EventEmitter = require('events').EventEmitter;
 
@@ -213,13 +212,13 @@ class Log {
       return `lh:${originalFn.name}`;
     };
 
+    const timeStartLogLevel = opts.timeStartLogLevel || 'log';
+    const timeEndLogLevel = opts.timeEndLogLevel || 'verbose';
+
     /**
      * @type {(this: T, ...args: Args) => R}
      */
-    const fn = function timeDecoratedFn(...args) {
-      const timeStartLogLevel = opts.timeStartLogLevel || 'log';
-      const timeEndLogLevel = opts.timeEndLogLevel || 'verbose';
-
+    return function timeDecoratedFn(...args) {
       const status = {msg: computeMsg(this, args), id: computeId(this, args)};
       Log.time(status, timeStartLogLevel);
 
@@ -228,8 +227,6 @@ class Log {
         result = originalFn.apply(this, args);
       } catch (err) {
         Log.timeEnd(status, timeEndLogLevel);
-        // intercept any errors and elide the time decoration from the stack trace
-        err.stack = err.stack.replace(/.* at Function\.timeDecoratedFn .*\n/g, '');
         throw err;
       }
 
@@ -239,8 +236,6 @@ class Log {
           return value;
         }).catch((/** @type {any} */ err) => {
           Log.timeEnd(status, timeEndLogLevel);
-          // intercept any errors and elide the time decoration from the stack trace
-          err.stack = err.stack.replace(/.* at Function\.timeDecoratedFn .*\n/, '');
           throw err;
         });
       } else {
@@ -248,7 +243,6 @@ class Log {
         return result;
       }
     };
-    return fn;
   }
   /* eslint-enable no-invalid-this */
 
@@ -270,7 +264,7 @@ class Log {
       /** @type {IsFunction<Class[typeof method]>} */
       const original = klass[method];
       if (!original) {
-        throw new Error('Cannot decorate non-existent method ${method}');
+        throw new Error(`Cannot decorate non-existent method ${method}`);
       }
       klass[method] = Log.timeDecorate(original, opts);
     }

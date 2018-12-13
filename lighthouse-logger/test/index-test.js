@@ -6,10 +6,9 @@
 'use strict';
 
 /* eslint-env jest */
-/* eslint-disable no-invalid-this */
 
 const assert = require('assert');
-const log = require('..');
+const log = require('../index.js');
 
 afterEach(log.takeTimeEntries);
 
@@ -52,6 +51,7 @@ describe('Log.timeDecorate', function() {
     assert.equal(decoratedFn(1, 2), 3);
   });
 
+  /* eslint-disable no-invalid-this */
   it('retains this binding', () => {
     const object = new function() {
       this.value = 'works';
@@ -66,6 +66,7 @@ describe('Log.timeDecorate', function() {
     });
     assert.equal(decoratedFn(), 'works');
   });
+  /* eslint-enable no-invalid-this */
 
   it('accepts function template for msg and id', () => {
     // eslint-disable-next-line no-unused-vars
@@ -76,38 +77,6 @@ describe('Log.timeDecorate', function() {
     });
     decoratedFn('it', 'works');
     assert.equal(log.takeTimeEntries()[0].name, 'id:it:works');
-  });
-
-  it('scrubs decorator from trace', () => {
-    const fn = () => {
-      throw new Error('test error');
-    };
-    const decoratedFn = log.timeDecorate(fn, {
-      msg: 'test',
-    });
-    let sawError = false;
-    try {
-      decoratedFn();
-    } catch (err) {
-      assert.ok(!err.stack.includes('timeDecoratedFn'));
-      sawError = true;
-    }
-    assert.ok(sawError);
-  });
-
-  it('scrubs decorator from trace, async', async () => {
-    const fn = async () => {
-      throw new Error('test error');
-    };
-    const decoratedFn = log.timeDecorate(fn, {
-      msg: 'test',
-    });
-    let sawError = false;
-    await decoratedFn().catch(err => {
-      assert.ok(!err.stack.includes('timeDecoratedFn'));
-      sawError = true;
-    });
-    assert.ok(sawError);
   });
 });
 
