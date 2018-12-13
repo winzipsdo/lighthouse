@@ -62,10 +62,9 @@ class Util {
     if (typeof clone.categories !== 'object') throw new Error('No categories provided.');
     clone.reportCategories = Object.values(clone.categories);
 
-    // The proto process turns 'not-applicable' into 'not_applicable'. Correct this to support both.
-    // TODO: remove when underscore/hyphen proto issue is resolved. See #6371, #6201.
+    // Turn 'not-applicable' and 'not_applicable' into 'notApplicable' to support old reports.
+    // TODO: remove when underscore/hyphen proto issue is resolved. See #6371, #6201, #6783.
     for (const audit of Object.values(clone.audits)) {
-      // TODO(exterkamp): remove this when proto enum removes 'not_applicable'
       // @ts-ignore tsc rightly flags that this value shouldn't occur.
       // eslint-disable-next-line max-len
       if (audit.scoreDisplayMode === 'not_applicable' || audit.scoreDisplayMode === 'not-applicable') {

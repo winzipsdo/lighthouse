@@ -45,18 +45,18 @@ class CategoryRenderer {
    */
   get _clumpDisplayInfo() {
     return {
-      'failed': {
+      failed: {
         className: 'lh-clump--failed',
       },
-      'manual': {
+      manual: {
         title: Util.UIStrings.manualAuditsGroupTitle,
         className: 'lh-clump--manual',
       },
-      'passed': {
+      passed: {
         title: Util.UIStrings.passedAuditsGroupTitle,
         className: 'lh-clump--passed',
       },
-      'notApplicable': {
+      notApplicable: {
         title: Util.UIStrings.notApplicableAuditsGroupTitle,
         className: 'lh-clump--not-applicable',
       },
