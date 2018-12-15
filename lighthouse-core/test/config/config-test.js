@@ -696,6 +696,28 @@ describe('Config', () => {
     });
   });
 
+  describe('mergePlugins', () => {
+    it('should append audits', () => {
+
+    });
+
+    it('should append a category', () => {
+
+    });
+
+    it('should throw if no category is provided', () => {
+
+    });
+
+    it('should throw if the plugin is not found', () => {
+
+    });
+
+    it('should throw if the plugin is invalid', () => {
+
+    });
+  });
+
   describe('getCategories', () => {
     it('returns the IDs & names of the categories', () => {
       const categories = Config.getCategories(origConfig);
@@ -975,7 +997,7 @@ describe('Config', () => {
     });
   });
 
-  describe('#getDisplayString', () => {
+  describe('#getPrintString', () => {
     it('doesn\'t include empty gatherer/audit options in output', () => {
       const gOpt = 'gathererOption';
       const aOpt = 'auditOption';
