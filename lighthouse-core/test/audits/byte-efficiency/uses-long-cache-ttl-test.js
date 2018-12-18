@@ -103,11 +103,10 @@ describe('Cache headers audit', () => {
 
     const networkRecords = [
       networkRecord({headers: {
-        'cache-control': 'must-revalidate,max-age=3600',
+        'cache-control': 'max-age=3600',
         'expires': expiresIn(86400),
       }}),
       networkRecord({headers: {
-        'cache-control': 'private,must-revalidate',
         'expires': expiresIn(86400),
       }}),
     ];
@@ -163,6 +162,21 @@ describe('Cache headers audit', () => {
       networkRecord({headers: {'cache-control': 'no-cache'}}),
       networkRecord({headers: {'cache-control': 'max-age=0'}}),
       networkRecord({headers: {pragma: 'no-cache'}}),
+    ];
+
+    const context = {options, computedCache: new Map()};
+    return CacheHeadersAudit.audit(getArtifacts(networkRecords), context).then(result => {
+      const items = result.extendedInfo.value.results;
+      assert.equal(result.score, 1);
+      assert.equal(items.length, 0);
+    });
+  });
+
+  it('ignores assets where policy implies they should not be cached long periods', () => {
+    const networkRecords = [
+      networkRecord({headers: {'cache-control': 'must-validate'}}),
+      networkRecord({headers: {'cache-control': 'no-cache'}}),
+      networkRecord({headers: {'cache-control': 'private'}}),
     ];
 
     const context = {options, computedCache: new Map()};

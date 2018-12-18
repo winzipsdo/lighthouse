@@ -202,6 +202,12 @@ class CacheHeaders extends Audit {
           cacheControl
         );
 
+        // Ignore assets where policy implies they should not be cached long periods
+        if (cacheControl &&
+          (cacheControl['must-validate'] || cacheControl['no-cache'] || cacheControl['private'])) {
+          continue;
+        }
+
         // Ignore assets with an explicit no-cache policy
         if (cacheLifetimeInSeconds === 0) continue;
         cacheLifetimeInSeconds = cacheLifetimeInSeconds || 0;
