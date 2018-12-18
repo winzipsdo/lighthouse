@@ -120,11 +120,11 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
     const element = this.dom.createElement('div', 'lh-category');
     if (environment === 'PSI') {
       const gaugeEl = this.dom.createElement('div', 'lh-score__gauge');
-      gaugeEl.appendChild(this.renderScoreGauge(category));
+      gaugeEl.appendChild(this.renderScoreGauge(category, groups));
       element.appendChild(gaugeEl);
     } else {
       this.createPermalinkSpan(element, category.id);
-      element.appendChild(this.renderCategoryHeader(category));
+      element.appendChild(this.renderCategoryHeader(category, groups));
     }
 
     // Metrics
@@ -188,7 +188,7 @@ class PerformanceCategoryRenderer extends CategoryRenderer {
       groupEl.appendChild(headerEl);
       opportunityAudits.forEach((item, i) =>
           groupEl.appendChild(this._renderOpportunity(item, i, scale)));
-      groupEl.classList.add('lh-audit-group--opportunities');
+      groupEl.classList.add('lh-audit-group--load-opportunities');
       element.appendChild(groupEl);
     }
 

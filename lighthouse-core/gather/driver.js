@@ -252,6 +252,7 @@ class Driver {
   }
 
   /**
+   * timeout is used for the next call to 'sendCommand'.
    * NOTE: This can eventually be replaced when TypeScript
    * resolves https://github.com/Microsoft/TypeScript/issues/5453.
    * @param {number} timeout
@@ -261,7 +262,7 @@ class Driver {
   }
 
   /**
-   * Call protocol methods.
+   * Call protocol methods, with a timeout.
    * To configure the timeout for the next call, use 'setNextProtocolTimeout'.
    * @template {keyof LH.CrdpCommands} C
    * @param {C} method
@@ -271,6 +272,34 @@ class Driver {
   sendCommand(method, ...params) {
     const timeout = this._nextProtocolTimeout;
     this._nextProtocolTimeout = DEFAULT_PROTOCOL_TIMEOUT;
+    return new Promise(async (resolve, reject) => {
+      const asyncTimeout = setTimeout((() => {
+        const err = new LHError(
+          LHError.errors.PROTOCOL_TIMEOUT,
+          {protocolMethod: method}
+        );
+        reject(err);
+      }), timeout);
+      try {
+        const result = await this._innerSendCommand(method, ...params);
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      } finally {
+        clearTimeout(asyncTimeout);
+      }
+    });
+  }
+
+  /**
+   * Call protocol methods.
+   * @private
+   * @template {keyof LH.CrdpCommands} C
+   * @param {C} method
+   * @param {LH.CrdpCommands[C]['paramsType']} params
+   * @return {Promise<LH.CrdpCommands[C]['returnType']>}
+   */
+  _innerSendCommand(method, ...params) {
     const domainCommand = /^(\w+)\.(enable|disable)$/.exec(method);
     if (domainCommand) {
       const enable = domainCommand[2] === 'enable';
@@ -278,21 +307,7 @@ class Driver {
         return Promise.resolve();
       }
     }
-    return new Promise(async (resolve, reject) => {
-      const asyncTimeout = setTimeout((_ => {
-        const err = new LHError(LHError.errors.PROTOCOL_TIMEOUT);
-        err.message += ` Method: ${method}`;
-        reject(err);
-      }), timeout);
-      try {
-        const result = await this._connection.sendCommand(method, ...params);
-        clearTimeout(asyncTimeout);
-        resolve(result);
-      } catch (err) {
-        clearTimeout(asyncTimeout);
-        reject(err);
-      }
-    });
+    return this._connection.sendCommand(method, ...params);
   }
 
   /**
@@ -497,12 +512,12 @@ class Driver {
    */
   checkForSecurityIssues({securityState, explanations}) {
     if (securityState === 'insecure') {
-      const errorDef = {...LHError.errors.INSECURE_DOCUMENT_REQUEST};
       const insecureDescriptions = explanations
         .filter(exp => exp.securityState === 'insecure')
         .map(exp => exp.description);
-      errorDef.message += ` ${insecureDescriptions.join(' ')}`;
-      return new LHError(errorDef);
+      return new LHError(LHError.errors.INSECURE_DOCUMENT_REQUEST, {
+        securityMessages: insecureDescriptions.join(' '),
+      });
     }
   }
 
@@ -637,25 +652,23 @@ class Driver {
     /**
      * @param {Driver} driver
      * @param {() => void} resolve
+     * @return {Promise<void>}
      */
-    function checkForQuiet(driver, resolve) {
+    async function checkForQuiet(driver, resolve) {
+      if (cancelled) return;
+      const timeSinceLongTask = await driver.evaluateAsync(checkForQuietExpression);
       if (cancelled) return;
 
-      return driver.evaluateAsync(checkForQuietExpression)
-        .then(timeSinceLongTask => {
-          if (cancelled) return;
-
-          if (typeof timeSinceLongTask === 'number') {
-            if (timeSinceLongTask >= waitForCPUQuiet) {
-              log.verbose('Driver', `CPU has been idle for ${timeSinceLongTask} ms`);
-              resolve();
-            } else {
-              log.verbose('Driver', `CPU has been idle for ${timeSinceLongTask} ms`);
-              const timeToWait = waitForCPUQuiet - timeSinceLongTask;
-              lastTimeout = setTimeout(() => checkForQuiet(driver, resolve), timeToWait);
-            }
-          }
-        });
+      if (typeof timeSinceLongTask === 'number') {
+        if (timeSinceLongTask >= waitForCPUQuiet) {
+          log.verbose('Driver', `CPU has been idle for ${timeSinceLongTask} ms`);
+          resolve();
+        } else {
+          log.verbose('Driver', `CPU has been idle for ${timeSinceLongTask} ms`);
+          const timeToWait = waitForCPUQuiet - timeSinceLongTask;
+          lastTimeout = setTimeout(() => checkForQuiet(driver, resolve), timeToWait);
+        }
+      }
     }
 
     /** @type {(() => void)} */
@@ -663,7 +676,7 @@ class Driver {
       throw new Error('_waitForCPUIdle.cancel() called before it was defined');
     };
     const promise = new Promise((resolve, reject) => {
-      checkForQuiet(this, resolve);
+      checkForQuiet(this, resolve).catch(reject);
       cancel = () => {
         cancelled = true;
         if (lastTimeout) clearTimeout(lastTimeout);
@@ -899,18 +912,10 @@ class Driver {
     await this._beginNetworkStatusMonitoring(url);
     await this._clearIsolatedContextId();
 
-    // These can 'race' and that's OK.
-    // We don't want to wait for Page.navigate's resolution, as it can now
-    // happen _after_ onload: https://crbug.com/768961
-    this.sendCommand('Page.enable');
-    this.sendCommand('Emulation.setScriptExecutionDisabled', {value: disableJS});
-    this.setNextProtocolTimeout(30 * 1000);
-    this.sendCommand('Page.navigate', {url}).catch(err => {
-      // can timeout on security issue
-      if (err.code !== 'PROTOCOL_TIMEOUT') {
-        throw err;
-      }
-    });
+    await this.sendCommand('Page.enable');
+    await this.sendCommand('Emulation.setScriptExecutionDisabled', {value: disableJS});
+    // No timeout needed for Page.navigate. See #6413.
+    const waitforPageNavigateCmd = this._innerSendCommand('Page.navigate', {url});
 
     try {
       await this.sendCommand('Security.enable');
@@ -921,9 +926,7 @@ class Driver {
 
     if (waitForNavigated) {
       await this._waitForFrameNavigated();
-    }
-
-    if (waitForLoad) {
+    } else if (waitForLoad) {
       const passConfig = /** @type {Partial<LH.Config.Pass>} */ (passContext.passConfig || {});
       let {pauseAfterLoadMs, networkQuietThresholdMs, cpuQuietThresholdMs} = passConfig;
       let maxWaitMs = passContext.settings && passContext.settings.maxWaitForLoad;
@@ -938,6 +941,9 @@ class Driver {
       await this._waitForFullyLoaded(pauseAfterLoadMs, networkQuietThresholdMs, cpuQuietThresholdMs,
           maxWaitMs);
     }
+
+    // Bring `Page.navigate` errors back into the promise chain. See #6739.
+    await waitforPageNavigateCmd;
 
     return this._endNetworkStatusMonitoring();
   }

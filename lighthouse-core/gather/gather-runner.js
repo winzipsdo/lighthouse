@@ -145,9 +145,8 @@ class GatherRunner {
       return URL.equalWithExcludedFragments(record.url, url);
     });
 
-    let errorDef;
     if (!mainRecord) {
-      errorDef = LHError.errors.NO_DOCUMENT_REQUEST;
+      return new LHError(LHError.errors.NO_DOCUMENT_REQUEST);
     } else if (mainRecord.failed) {
       const netErr = mainRecord.localizedFailDescription;
       // Match all resolution and DNS failures
@@ -157,18 +156,18 @@ class GatherRunner {
         netErr === 'net::ERR_NAME_RESOLUTION_FAILED' ||
         netErr.startsWith('net::ERR_DNS_')
       ) {
-        errorDef = LHError.errors.DNS_FAILURE;
+        return new LHError(LHError.errors.DNS_FAILURE);
       } else {
-        errorDef = {...LHError.errors.FAILED_DOCUMENT_REQUEST};
-        errorDef.message += ` ${netErr}.`;
+        return new LHError(
+          LHError.errors.FAILED_DOCUMENT_REQUEST,
+          {errorDetails: netErr}
+        );
       }
     } else if (mainRecord.hasErrorStatusCode()) {
-      errorDef = {...LHError.errors.ERRORED_DOCUMENT_REQUEST};
-      errorDef.message += ` Status code: ${mainRecord.statusCode}.`;
-    }
-
-    if (errorDef) {
-      return new LHError(errorDef);
+      return new LHError(
+        LHError.errors.ERRORED_DOCUMENT_REQUEST,
+        {statusCode: `${mainRecord.statusCode}`}
+      );
     }
   }
 
@@ -241,8 +240,6 @@ class GatherRunner {
     // Navigate.
     try {
       await GatherRunner.loadPage(driver, passContext);
-    } catch (err) {
-      throw err;
     } finally {
       log.timeEnd(status);
     }
@@ -452,21 +449,7 @@ class GatherRunner {
           await GatherRunner.loadBlank(driver, passConfig.blankPage);
         }
         await GatherRunner.beforePass(passContext, gathererResults);
-        try {
-          await GatherRunner.pass(passContext, gathererResults);
-        } catch (err) {
-          if (err.code === LHError.errors.INSECURE_DOCUMENT_REQUEST.code) {
-            log.error('GatherRunner.pass', err.message);
-            for (const gathererResult of Object.values(gathererResults)) {
-              if (gathererResult) {
-                gathererResult.push(err);
-              }
-            }
-            break;
-          }
-
-          throw err;
-        }
+        await GatherRunner.pass(passContext, gathererResults);
         const passData = await GatherRunner.afterPass(passContext, gathererResults);
 
         // Save devtoolsLog, but networkRecords are discarded and not added onto artifacts.
