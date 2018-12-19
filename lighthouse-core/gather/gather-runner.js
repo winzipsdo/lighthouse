@@ -238,11 +238,8 @@ class GatherRunner {
     if (recordTrace) await driver.beginTrace(settings);
 
     // Navigate.
-    try {
-      await GatherRunner.loadPage(driver, passContext);
-    } finally {
-      log.timeEnd(status);
-    }
+    await GatherRunner.loadPage(driver, passContext);
+    log.timeEnd(status);
 
     const pStatus = {msg: `Running pass methods`, id: `lh:gather:pass`};
     log.time(pStatus, 'verbose');
