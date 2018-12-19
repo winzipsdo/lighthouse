@@ -99,6 +99,8 @@ connection.sendCommand = function(command, params) {
     case 'Tracing.start':
     case 'ServiceWorker.enable':
     case 'ServiceWorker.disable':
+    case 'Security.enable':
+    case 'Security.disable':
     case 'Network.setExtraHTTPHeaders':
     case 'Network.emulateNetworkConditions':
     case 'Emulation.setCPUThrottlingRate':
@@ -221,7 +223,12 @@ describe('Browser Driver', () => {
     }
     const replayConnection = new ReplayConnection();
     const driver = new Driver(replayConnection);
-    driver.waitForSecurityIssuesCheck = () => Promise.resolve();
+    driver._waitForSecurityCheck = () => {
+      return {
+        promise: Promise.resolve(),
+        cancel: () => {},
+      };
+    };
 
     // Redirect in log will go through
     const startUrl = 'http://en.wikipedia.org/';
@@ -537,16 +544,18 @@ describe('Multiple tab check', () => {
     });
   });
 
-  describe('.checkForSecurityIssues', () => {
-    it('returns nothing when page is secure', () => {
+  describe('._waitForSecurityCheck', () => {
+    it('returns nothing when page is secure', async () => {
       const secureSecurityState = {
         securityState: 'secure',
       };
-      const err = driverStub.checkForSecurityIssues(secureSecurityState);
-      assert.equal(err, undefined);
+      driverStub.once = createOnceStub({
+        'Security.securityStateChanged': secureSecurityState,
+      });
+      await driverStub._waitForSecurityCheck().promise;
     });
 
-    it('returns an error when page is insecure', () => {
+    it('returns an error when page is insecure', async () => {
       const insecureSecurityState = {
         explanations: [
           {
@@ -564,11 +573,18 @@ describe('Multiple tab check', () => {
         ],
         securityState: 'insecure',
       };
-      const err = driverStub.checkForSecurityIssues(insecureSecurityState);
-      assert.equal(err.message, 'INSECURE_DOCUMENT_REQUEST');
-      assert.equal(err.code, 'INSECURE_DOCUMENT_REQUEST');
-      /* eslint-disable-next-line max-len */
-      expect(err.friendlyMessage).toBeDisplayString('The URL you have provided does not have valid security credentials. reason 1. reason 2.');
+      driverStub.once = createOnceStub({
+        'Security.securityStateChanged': insecureSecurityState,
+      });
+      try {
+        await driverStub._waitForSecurityCheck().promise;
+        assert.fail('_waitForSecurityCheck should have rejected');
+      } catch (err) {
+        assert.equal(err.message, 'INSECURE_DOCUMENT_REQUEST');
+        assert.equal(err.code, 'INSECURE_DOCUMENT_REQUEST');
+        /* eslint-disable-next-line max-len */
+        expect(err.friendlyMessage).toBeDisplayString('The URL you have provided does not have valid security credentials. reason 1. reason 2.');
+      }
     });
   });
 });
