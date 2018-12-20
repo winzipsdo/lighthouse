@@ -537,11 +537,11 @@ class Driver {
       };
 
       this.on('Security.securityStateChanged', securityStateChangedListener);
-      this.sendCommand('Security.enable');
+      this.sendCommand('Security.enable').catch(() => {});
 
       cancel = () => {
         this.off('Security.securityStateChanged', securityStateChangedListener);
-        this.sendCommand('Security.disable');
+        this.sendCommand('Security.disable').catch(() => {});
       };
     });
 
@@ -762,6 +762,7 @@ class Driver {
   /**
    * Returns a promise that resolves when:
    * - All of the following conditions have been met:
+   *    - page has no security issues
    *    - pauseAfterLoadMs milliseconds have passed since the load event.
    *    - networkQuietThresholdMs milliseconds have passed since the last network request that exceeded
    *      2 inflight requests (network-2-quiet has been reached).
@@ -782,6 +783,8 @@ class Driver {
 
 
     // Listener for security state change. Rejects if security issue is found.
+    // We can expect the security state to always change because this function
+    // is only used to move about:blank (neutral) -> the target url (something not neutral).
     const waitForSecurityCheck = this._waitForSecurityCheck();
     // Listener for onload. Resolves pauseAfterLoadMs ms after load.
     const waitForLoadEvent = this._waitForLoadEvent(pauseAfterLoadMs);
