@@ -144,7 +144,7 @@ class Util {
   static showAsPassed(audit) {
     switch (audit.scoreDisplayMode) {
       case 'manual':
-      case 'not-applicable':
+      case 'notApplicable':
         return true;
       case 'error':
       case 'informative':

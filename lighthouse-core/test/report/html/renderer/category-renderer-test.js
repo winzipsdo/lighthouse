@@ -59,7 +59,7 @@ describe('CategoryRenderer', () => {
     assert.equal(title.textContent, auditRef.result.title);
     assert.ok(description.querySelector('a'), 'audit help text contains coverted markdown links');
     assert.ok(auditDOM.classList.contains('lh-audit--fail'));
-    assert.ok(auditDOM.classList.contains(`lh-audit--${auditRef.result.scoreDisplayMode}`));
+    assert.ok(auditDOM.classList.contains(`lh-audit--${auditRef.result.scoreDisplayMode.toLowerCase()}`));
   });
 
   it('renders an audit explanation when appropriate', () => {
@@ -158,19 +158,19 @@ describe('CategoryRenderer', () => {
     const a11yCategory = sampleResults.reportCategories.find(cat => cat.id === 'accessibility');
     const categoryDOM = renderer.render(a11yCategory, sampleResults.categoryGroups);
     assert.ok(categoryDOM.querySelector(
-        '.lh-clump--not-applicable .lh-audit-group__summary'));
+        '.lh-clump--notapplicable .lh-audit-group__summary'));
 
     const notApplicableCount = a11yCategory.auditRefs.reduce((sum, audit) =>
         sum += audit.result.scoreDisplayMode === 'notApplicable' ? 1 : 0, 0);
     assert.equal(
-      categoryDOM.querySelectorAll('.lh-clump--not-applicable .lh-audit').length,
+      categoryDOM.querySelectorAll('.lh-clump--notapplicable .lh-audit').length,
       notApplicableCount,
       'score shows informative and dash icon'
     );
 
     const bestPracticeCat = sampleResults.reportCategories.find(cat => cat.id === 'best-practices');
     const categoryDOM2 = renderer.render(bestPracticeCat, sampleResults.categoryGroups);
-    assert.ok(!categoryDOM2.querySelector('.lh-clump--not-applicable'));
+    assert.ok(!categoryDOM2.querySelector('.lh-clump--notapplicable'));
   });
 
   describe('category with groups', () => {
@@ -233,7 +233,7 @@ describe('CategoryRenderer', () => {
       const failedAudits = elem.querySelectorAll('.lh-clump--failed .lh-audit__index');
       const manualAudits = elem.querySelectorAll('.lh-clump--manual .lh-audit__index');
       const notApplicableAudits =
-        elem.querySelectorAll('.lh-clump--not-applicable .lh-audit__index');
+        elem.querySelectorAll('.lh-clump--notapplicable .lh-audit__index');
 
       const assertAllTheIndices = (nodeList) => {
         // Must be at least one for a decent test.

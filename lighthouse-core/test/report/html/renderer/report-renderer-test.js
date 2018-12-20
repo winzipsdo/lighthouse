@@ -196,7 +196,7 @@ describe('ReportRenderer', () => {
     const container = renderer._dom._document.body;
     const reportElement = renderer.renderReport(sampleResults, container);
     const notApplicableElementCount = reportElement
-      .querySelectorAll('.lh-audit--notApplicable').length;
+      .querySelectorAll('.lh-audit--notapplicable').length;
     assert.strictEqual(notApplicableCount, notApplicableElementCount);
   });
 });

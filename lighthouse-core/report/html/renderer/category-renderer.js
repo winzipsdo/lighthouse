@@ -58,7 +58,7 @@ class CategoryRenderer {
       },
       notApplicable: {
         title: Util.UIStrings.notApplicableAuditsGroupTitle,
-        className: 'lh-clump--not-applicable',
+        className: 'lh-clump--notapplicable',
       },
     };
   }
@@ -153,7 +153,7 @@ class CategoryRenderer {
    */
   _setRatingClass(element, score, scoreDisplayMode) {
     const rating = Util.calculateRating(score, scoreDisplayMode);
-    element.classList.add(`lh-audit--${rating}`, `lh-audit--${scoreDisplayMode}`);
+    element.classList.add(`lh-audit--${rating}`, `lh-audit--${scoreDisplayMode.toLowerCase()}`);
     return element;
   }
 
