@@ -535,6 +535,9 @@ class Driver {
         }
       };
 
+      // nothing to cancel at this point
+      cancel = () => {};
+
       // wait for Security.enable to resolve, so we skip whatever state change
       // events are in the pipeline
       await this.sendCommand('Security.enable');
