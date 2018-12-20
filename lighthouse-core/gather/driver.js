@@ -521,8 +521,8 @@ class Driver {
        * @param {LH.Crdp.Security.SecurityStateChangedEvent} event
        */
       const securityStateChangedListener = ({securityState, explanations}) => {
-        this.sendCommand('Security.disable');
         if (securityState === 'insecure') {
+          cancel();
           const insecureDescriptions = explanations
             .filter(exp => exp.securityState === 'insecure')
             .map(exp => exp.description);
@@ -530,18 +530,14 @@ class Driver {
             securityMessages: insecureDescriptions.join(' '),
           });
           reject(err);
-        } else {
+        } else if (securityState !== 'neutral') {
+          cancel();
           resolve();
         }
       };
 
-      // nothing to cancel at this point
-      cancel = () => {};
-
-      // wait for Security.enable to resolve, so we skip whatever state change
-      // events are in the pipeline
-      await this.sendCommand('Security.enable');
-      this.once('Security.securityStateChanged', securityStateChangedListener);
+      this.on('Security.securityStateChanged', securityStateChangedListener);
+      this.sendCommand('Security.enable');
 
       cancel = () => {
         this.off('Security.securityStateChanged', securityStateChangedListener);
