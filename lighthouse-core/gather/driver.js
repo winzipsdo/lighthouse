@@ -521,6 +521,11 @@ class Driver {
        * @param {LH.Crdp.Security.SecurityStateChangedEvent} event
        */
       const securityStateChangedListener = ({securityState, explanations}) => {
+        // ignore neutral until there is something meaningful to derive security from
+        if (securityState === 'neutral' && !explanations.length) {
+          return;
+        }
+
         if (securityState === 'insecure') {
           cancel();
           const insecureDescriptions = explanations
@@ -530,7 +535,7 @@ class Driver {
             securityMessages: insecureDescriptions.join(' '),
           });
           reject(err);
-        } else if (securityState !== 'neutral') {
+        } else {
           cancel();
           resolve();
         }
