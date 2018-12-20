@@ -103,7 +103,7 @@ describe('Cache headers audit', () => {
 
     const networkRecords = [
       networkRecord({headers: {
-        'cache-control': 'max-age=3600',
+        'cache-control': 'no-transform,max-age=3600',
         'expires': expiresIn(86400),
       }}),
       networkRecord({headers: {
