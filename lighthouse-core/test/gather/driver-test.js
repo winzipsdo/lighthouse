@@ -545,7 +545,7 @@ describe('Multiple tab check', () => {
   });
 
   describe('._waitForSecurityCheck', () => {
-    it('returns nothing when page is secure', async () => {
+    it('does not reject when page is secure', async () => {
       const secureSecurityState = {
         securityState: 'secure',
       };
@@ -555,7 +555,7 @@ describe('Multiple tab check', () => {
       await driverStub._waitForSecurityCheck().promise;
     });
 
-    it('returns an error when page is insecure', async () => {
+    it('rejects when page is insecure', async () => {
       const insecureSecurityState = {
         explanations: [
           {
