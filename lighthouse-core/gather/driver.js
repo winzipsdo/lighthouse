@@ -506,7 +506,11 @@ class Driver {
   }
 
   /**
-   * Rejects if the security state is insecure.
+   * Listener that resolves or rejects on the first interesting security state change.
+   * If the first change is secure, we resolve.
+   * Otherwise, we reject.
+   * We can expect the security state to always change because this function
+   * is only used to move about:blank (neutral) -> the target url (something not neutral).
    * @return {{promise: Promise<void>, cancel: function(): void}}
    * @private
    */
@@ -786,12 +790,9 @@ class Driver {
     /** @type {NodeJS.Timer|undefined} */
     let maxTimeoutHandle;
 
-
-    // Listener for security state change. Rejects if security issue is found.
-    // We can expect the security state to always change because this function
-    // is only used to move about:blank (neutral) -> the target url (something not neutral).
-    // Noop if offline.
-    const waitForSecurityCheck = this.online ? this._waitForSecurityCheck() : {
+    // Noop if offline or localhost
+    const isLocalhost = new URL(this._monitoredUrl || '').hostname !== 'localhost';
+    const waitForSecurityCheck = this.online && isLocalhost ? this._waitForSecurityCheck() : {
       promise: Promise.resolve(),
       cancel: () => {},
     };
