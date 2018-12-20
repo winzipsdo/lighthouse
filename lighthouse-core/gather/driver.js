@@ -521,7 +521,7 @@ class Driver {
        * @param {LH.Crdp.Security.SecurityStateChangedEvent} event
        */
       const securityStateChangedListener = ({securityState, explanations}) => {
-        // ignore neutral until there is something meaningful to derive security from
+        // ignore until there is something meaningful to derive security from
         if (securityState === 'neutral' && !explanations.length) {
           return;
         }
@@ -790,7 +790,11 @@ class Driver {
     // Listener for security state change. Rejects if security issue is found.
     // We can expect the security state to always change because this function
     // is only used to move about:blank (neutral) -> the target url (something not neutral).
-    const waitForSecurityCheck = this._waitForSecurityCheck();
+    // Noop if offline.
+    const waitForSecurityCheck = this.online ? this._waitForSecurityCheck() : {
+      promise: Promise.resolve(),
+      cancel: () => {},
+    };
     // Listener for onload. Resolves pauseAfterLoadMs ms after load.
     const waitForLoadEvent = this._waitForLoadEvent(pauseAfterLoadMs);
     // Network listener. Resolves when the network has been idle for networkQuietThresholdMs.
