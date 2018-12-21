@@ -11,6 +11,20 @@ const MainResource = require('../../computed/main-resource.js');
 const VALID_LANGS = importValidLangs();
 const LINK_HEADER = 'link';
 const NO_LANGUAGE = 'x-default';
+const i18n = require('../../lib/i18n/i18n.js');
+
+const UIStrings = {
+  /** Imperative title of a Lighthouse audit that tells the user the hreflang is valid for their site. This is displayed in a list of audit titles that Lighthouse generates. */
+  title: 'Document has a valid `hreflang`',
+  /** Imperative title of a Lighthouse audit that tells the user the hreflang is valid for their site. This imperative title is shown when the site does not have a valid hreflang element. */
+  failureTitle: 'Document doesn\'t have a valid `hreflang`',
+  /** Description of a Lighthouse audit that tells the user *why* they need to have an hreflang link on their page. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
+  description: 'hreflang links tell search engines what version of a page they should ' +
+    'list in search results for a given language or region. [Learn more]' +
+    '(https://developers.google.com/web/tools/lighthouse/audits/hreflang).',
+};
+
+const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
 
 /**
  * Import list of valid languages from axe core without including whole axe-core package
@@ -65,11 +79,9 @@ class Hreflang extends Audit {
   static get meta() {
     return {
       id: 'hreflang',
-      title: 'Document has a valid `hreflang`',
-      failureTitle: 'Document doesn\'t have a valid `hreflang`',
-      description: 'hreflang links tell search engines what version of a page they should ' +
-        'list in search results for a given language or region. [Learn more]' +
-        '(https://developers.google.com/web/tools/lighthouse/audits/hreflang).',
+      title: str_(UIStrings.title),
+      failureTitle: str_(UIStrings.failureTitle),
+      description: str_(UIStrings.description),
       requiredArtifacts: ['Hreflang', 'URL'],
     };
   }
@@ -119,3 +131,4 @@ class Hreflang extends Audit {
 }
 
 module.exports = Hreflang;
+module.exports.UIStrings = UIStrings;

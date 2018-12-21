@@ -23,7 +23,8 @@ describe('SEO: Font size audit', () => {
 
     const auditResult = FontSizeAudit.audit(artifacts);
     assert.equal(auditResult.rawValue, false);
-    assert.ok(auditResult.explanation.includes('missing viewport'));
+    expect(auditResult.explanation)
+      .toBeDisplayString('Text is illegible because of a missing viewport config');
   });
 
   it('fails when less than 60% of text is legible', () => {
@@ -44,7 +45,7 @@ describe('SEO: Font size audit', () => {
 
     const auditResult = FontSizeAudit.audit(artifacts);
     assert.equal(auditResult.rawValue, false);
-    assert.ok(auditResult.explanation.includes('41%'));
+    expect(auditResult.explanation).toBeDisplayString('41% of text is too small.');
     expect(auditResult.displayValue).toBeDisplayString('59% legible text');
   });
 
@@ -165,7 +166,8 @@ describe('SEO: Font size audit', () => {
     };
     const auditResult = FontSizeAudit.audit(artifacts);
     assert.equal(auditResult.rawValue, false);
-    assert.ok(auditResult.explanation.includes('50%'));
+    expect(auditResult.explanation)
+      .toBeDisplayString('100% of text is too small (based on 50% sample).');
     expect(auditResult.displayValue).toBeDisplayString('0% legible text');
   });
 

@@ -15,6 +15,20 @@ const BLOCKLIST = new Set([
 ]);
 const ROBOTS_HEADER = 'x-robots-tag';
 const UNAVAILABLE_AFTER = 'unavailable_after';
+const i18n = require('../../lib/i18n/i18n.js');
+
+const UIStrings = {
+  /** Imperative title of a Lighthouse audit that tells the user their page is not blocked from being indexed by search engine crawlers. This is displayed in a list of audit titles that Lighthouse generates. */
+  title: 'Page isn’t blocked from indexing',
+  /** Imperative title of a Lighthouse audit that tells the user their page is not blocked from being indexed by search engine crawlers. This imperative title is shown when the site has been blocked from indexing by search engine crawlers. */
+  failureTitle: 'Page is blocked from indexing',
+  /** Description of a Lighthouse audit that tells the user *why* they need to allow crawling on their page. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
+  description: 'Search engines are unable to include your pages in search results ' +
+      'if they don\'t have permission to crawl them. [Learn ' +
+      'more](https://developers.google.com/web/tools/lighthouse/audits/indexing).',
+};
+
+const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
 
 /**
  * Checks if given directive is a valid unavailable_after directive with a date in the past
@@ -64,11 +78,9 @@ class IsCrawlable extends Audit {
   static get meta() {
     return {
       id: 'is-crawlable',
-      title: 'Page isn’t blocked from indexing',
-      failureTitle: 'Page is blocked from indexing',
-      description: 'Search engines are unable to include your pages in search results ' +
-          'if they don\'t have permission to crawl them. [Learn ' +
-          'more](https://developers.google.com/web/tools/lighthouse/audits/indexing).',
+      title: str_(UIStrings.title),
+      failureTitle: str_(UIStrings.failureTitle),
+      description: str_(UIStrings.description),
       requiredArtifacts: ['MetaRobots', 'RobotsTxt', 'URL'],
     };
   }
@@ -132,3 +144,4 @@ class IsCrawlable extends Audit {
 }
 
 module.exports = IsCrawlable;
+module.exports.UIStrings = UIStrings;

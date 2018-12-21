@@ -18,6 +18,24 @@ const BLOCKLIST = new Set([
   'more',
   'learn more',
 ]);
+const i18n = require('../../lib/i18n/i18n.js');
+
+const UIStrings = {
+  /** Imperative title of a Lighthouse audit that tells the user their links have descriptive enough text for a search engine crawler to parse them. This is displayed in a list of audit titles that Lighthouse generates. */
+  title: 'Links have descriptive text',
+  /** Imperative title of a Lighthouse audit that tells the user their links have descriptive enough text for a search engine crawler to parse them. This imperative title is shown when there are links on the page without proper text to describe them. */
+  failureTitle: 'Links do not have descriptive text',
+  /** Description of a Lighthouse audit that tells the user *why* they need to have descriptive text on the links in their page. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
+  description: 'Descriptive link text helps search engines understand your content. ' +
+  '[Learn more](https://developers.google.com/web/tools/lighthouse/audits/descriptive-link-text).',
+  /** */
+  displayValue: `{itemCount, plural,
+    =1 {1 link found}
+    other {# links found}
+    }`,
+};
+
+const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
 
 class LinkText extends Audit {
   /**
@@ -26,10 +44,9 @@ class LinkText extends Audit {
   static get meta() {
     return {
       id: 'link-text',
-      title: 'Links have descriptive text',
-      failureTitle: 'Links do not have descriptive text',
-      description: 'Descriptive link text helps search engines understand your content. ' +
-      '[Learn more](https://developers.google.com/web/tools/lighthouse/audits/descriptive-link-text).',
+      title: str_(UIStrings.title),
+      failureTitle: str_(UIStrings.failureTitle),
+      description: str_(UIStrings.description),
       requiredArtifacts: ['URL', 'CrawlableLinks'],
     };
   }
@@ -68,8 +85,7 @@ class LinkText extends Audit {
     let displayValue;
 
     if (failingLinks.length) {
-      displayValue = failingLinks.length > 1 ?
-        `${failingLinks.length} links found` : '1 link found';
+      displayValue = str_(UIStrings.displayValue, {itemCount: failingLinks.length});
     }
 
     return {
@@ -81,3 +97,4 @@ class LinkText extends Audit {
 }
 
 module.exports = LinkText;
+module.exports.UIStrings = UIStrings;

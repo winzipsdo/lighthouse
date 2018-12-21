@@ -22,6 +22,10 @@ const UIStrings = {
   description: 'Font sizes less than 12px are too small to be legible and require mobile visitors to “pinch to zoom” in order to read. Strive to have >60% of page text ≥12px. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/font-sizes).',
   /** [ICU Syntax] Label for the audit identifying font sizes that are too small. */
   displayValue: '{decimalProportion, number, extendedPercent} legible text',
+  /** Explanatory message stating that there was a failure in an audit caused by a missing page viewport config. */
+  explanationViewport: 'Text is illegible because of a missing viewport config',
+  /** Explanatory message stating that there was a failure in an audit caused by a certain percentage of the text on the page being too small. */
+  explanation: '{decimalProportion, number, extendedPercent} of text is too small{disclaimer}.',
 };
 
 const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
@@ -212,7 +216,7 @@ class FontSize extends Audit {
     if (!hasViewportSet) {
       return {
         rawValue: false,
-        explanation: 'Text is illegible because of a missing viewport config',
+        explanation: str_(UIStrings.explanationViewport),
       };
     }
 
@@ -285,7 +289,7 @@ class FontSize extends Audit {
 
     let explanation;
     if (!passed) {
-      const percentageOfFailingText = parseFloat((100 - percentageOfPassingText).toFixed(2));
+      const percentageOfFailingText = parseFloat((100 - percentageOfPassingText).toFixed(2)) / 100;
       let disclaimer = '';
 
       // if we were unable to visit all text nodes we should disclose that information
@@ -293,8 +297,8 @@ class FontSize extends Audit {
         const percentageOfVisitedText = visitedTextLength / totalTextLength * 100;
         disclaimer = ` (based on ${percentageOfVisitedText.toFixed()}% sample)`;
       }
-
-      explanation = `${percentageOfFailingText}% of text is too small${disclaimer}.`;
+      explanation = str_(UIStrings.explanation,
+        {decimalProportion: percentageOfFailingText, disclaimer});
     }
 
     return {

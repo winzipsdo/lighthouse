@@ -31,6 +31,28 @@ const DIRECTIVE_SAFELIST = new Set([
   'request-rate', 'visit-time', 'noindex', // not officially supported, but used in the wild
 ]);
 const SITEMAP_VALID_PROTOCOLS = new Set(['https:', 'http:', 'ftp:']);
+const i18n = require('../../lib/i18n/i18n.js');
+
+const UIStrings = {
+  /** Imperative title of a Lighthouse audit that tells the user their site has a valid robots.txt file. This is displayed in a list of audit titles that Lighthouse generates. */
+  title: 'robots.txt is valid',
+  /** Imperative title of a Lighthouse audit that tells the user their site has a valid robots.txt file. This imperative title is shown when the robots.txt is not valid for a site.*/
+  failureTitle: 'robots.txt is not valid',
+  /** Description of a Lighthouse audit that tells the user *why* they need to have a valid robots.txt file. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
+  description: 'If your robots.txt file is malformed, crawlers may not be able to understand ' +
+  'how you want your website to be crawled or indexed.',
+  /** [ICU Syntax] Label for the audit identifying that the robots.txt request has returned a specific HTTP status code. */
+  displayValueHttpError: 'request for robots.txt returned HTTP status: {statusCode, number}',
+  /** [ICU Syntax] Label for the audit identifying the number of errors that occured while validating the robots.txt file. */
+  displayValueValidationError: `{itemCount, plural,
+    =1 {1 error found}
+    other {# errors found}
+    }`,
+  /** Explanatory message stating that there was a failure in an audit caused by Lighthouse not being able to download the robots.txt file for the page.*/
+  explanation: 'Lighthouse was unable to download your robots.txt file',
+};
+
+const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
 
 /**
  * @param {string} directiveName
@@ -161,10 +183,9 @@ class RobotsTxt extends Audit {
   static get meta() {
     return {
       id: 'robots-txt',
-      title: 'robots.txt is valid',
-      failureTitle: 'robots.txt is not valid',
-      description: 'If your robots.txt file is malformed, crawlers may not be able to understand ' +
-      'how you want your website to be crawled or indexed.',
+      title: str_(UIStrings.title),
+      failureTitle: str_(UIStrings.failureTitle),
+      description: str_(UIStrings.description),
       requiredArtifacts: ['RobotsTxt'],
     };
   }
@@ -182,14 +203,14 @@ class RobotsTxt extends Audit {
     if (!status) {
       return {
         rawValue: false,
-        explanation: 'Lighthouse was unable to download your robots.txt file',
+        explanation: str_(UIStrings.explanation),
       };
     }
 
     if (status >= HTTP_SERVER_ERROR_CODE_LOW) {
       return {
         rawValue: false,
-        displayValue: `request for robots.txt returned HTTP${status}`,
+        displayValue: str_(UIStrings.displayValueHttpError, {statusCode: status}),
       };
     } else if (status >= HTTP_CLIENT_ERROR_CODE_LOW || content === '') {
       return {
@@ -215,8 +236,8 @@ class RobotsTxt extends Audit {
     let displayValue;
 
     if (validationErrors.length) {
-      displayValue = validationErrors.length > 1 ?
-        `${validationErrors.length} errors found` : '1 error found';
+      displayValue =
+        str_(UIStrings.displayValueValidationError, {itemCount: validationErrors.length});
     }
 
     return {
@@ -228,3 +249,4 @@ class RobotsTxt extends Audit {
 }
 
 module.exports = RobotsTxt;
+module.exports.UIStrings = UIStrings;
