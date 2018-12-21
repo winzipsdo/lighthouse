@@ -105,7 +105,7 @@ class ReportUIFeatures {
   }
 
   _setupMediaQueryListeners() {
-    const mediaQuery = self.matchMedia('(max-width: 600px)');
+    const mediaQuery = self.matchMedia('(max-width: 500px)');
     mediaQuery.addListener(this.onMediaQueryChange);
     // Ensure the handler is called on init
     this.onMediaQueryChange(mediaQuery);
@@ -118,6 +118,8 @@ class ReportUIFeatures {
   onMediaQueryChange(mql) {
     const root = this._dom.find('.lh-root', this._document);
     root.classList.toggle('lh-narrow', mql.matches);
+    // Reset animations for the narrow view header height change.
+    this._setupHeaderAnimation();
   }
 
   _setupExportButton() {
@@ -226,8 +228,8 @@ class ReportUIFeatures {
     this.headerSticky.style.transform = `translateY(${heightDiff * scrollPct * -1}px)`;
     this.headerBackground.style.transform = `translateY(${scrollPct * this.headerOverlap}px)`;
     this.lighthouseIcon.style.transform =
-      `translate3d(var(--report-width-half),` +
-      ` calc(-100% - ${scrollPct * this.headerOverlap * -1}px), 0) scale(${1 - scrollPct})`;
+      `translate3d(0,` +
+      ` calc(-${scrollPct * this.headerOverlap * -1}px), 0) scale(${1 - scrollPct})`;
     this.lighthouseIcon.style.opacity = (1 - scrollPct).toString();
 
     // Switch up the score background & shadows
