@@ -28,7 +28,7 @@ const UIStrings = {
   /** Description of a Lighthouse audit that tells the user *why* they need to have descriptive text on the links in their page. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Descriptive link text helps search engines understand your content. ' +
   '[Learn more](https://developers.google.com/web/tools/lighthouse/audits/descriptive-link-text).',
-  /** */
+  /** [ICU Syntax] Label for the audit identifying the number of links found. */
   displayValue: `{itemCount, plural,
     =1 {1 link found}
     other {# links found}
