@@ -195,7 +195,7 @@ class Log {
    */
   static timeDecorate(originalFn, opts) {
     /**
-     * @type {(this: *, ...args: *[]) => string}
+     * @type {(_this: *, ...args: *[]) => string}
      */
     const computeMsg = (_this, args) => {
       if (typeof opts.msg === 'string') return opts.msg;
@@ -204,7 +204,7 @@ class Log {
     };
 
     /**
-     * @type {(this: *, ...args: *[]) => string}
+     * @type {(_this: *, ...args: *[]) => string}
      */
     const computeId = (_this, args) => {
       if (typeof opts.id === 'string') return opts.id;
