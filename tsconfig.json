@@ -24,7 +24,6 @@
     "./types/*.d.ts",
   ],
   "exclude": [
-    "lighthouse-cli/test/**/*.js",
     "lighthouse-core/test/**/*.js",
     "clients/test/**/*.js",
   ]
