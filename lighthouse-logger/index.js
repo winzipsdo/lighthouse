@@ -186,12 +186,11 @@ class Log {
   /* eslint-disable no-invalid-this */
   /**
    * Decorates a function, calling time/timeEnd before/after calling the original function.
-   * @template T
    * @template {*} R
    * @template {*[]} Args
-   * @param {(this: T, ...args: Args) => R} originalFn
-   * @param {TimeDecorateOpts<T, Args>} opts
-   * @return {(this: T, ...args: Args) => R}
+   * @param {(...args: Args) => R} originalFn
+   * @param {TimeDecorateOpts<any, Args>} opts
+   * @return {(...args: Args) => R}
    */
   static timeDecorate(originalFn, opts) {
     /**
@@ -216,9 +215,9 @@ class Log {
     const timeEndLogLevel = opts.timeEndLogLevel || 'verbose';
 
     /**
-     * @type {(this: T, ...args: Args) => R}
-     */
-    return function timeDecoratedFn(...args) {
+     * @type {(this: *, ...args: Args) => R}
+    */
+    const fn = function timeDecoratedFn(...args) {
       const status = {msg: computeMsg(this, args), id: computeId(this, args)};
       Log.time(status, timeStartLogLevel);
 
@@ -243,6 +242,7 @@ class Log {
         return result;
       }
     };
+    return fn;
   }
   /* eslint-enable no-invalid-this */
 
