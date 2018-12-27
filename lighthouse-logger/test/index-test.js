@@ -51,23 +51,6 @@ describe('Log.timeDecorate', function() {
     assert.equal(decoratedFn(1, 2), 3);
   });
 
-  /* eslint-disable no-invalid-this */
-  it('retains this binding', () => {
-    const object = new function() {
-      this.value = 'works';
-      this.getValue = () => {
-        return this.value;
-      };
-    };
-    const fn = object.getValue;
-    const decoratedFn = log.timeDecorate(fn, {
-      msg: 'msg',
-      id: 'id',
-    });
-    assert.equal(decoratedFn(), 'works');
-  });
-  /* eslint-enable no-invalid-this */
-
   it('accepts function template for msg and id', () => {
     // eslint-disable-next-line no-unused-vars
     const fn = (value1, value2) => {};
@@ -81,6 +64,27 @@ describe('Log.timeDecorate', function() {
 });
 
 describe('Log.timeDecorateClass', function() {
+  /* eslint-disable no-invalid-this */
+  it('retains this binding', () => {
+    class Class {
+      constructor() {
+        this.value = 'works';
+      }
+
+      getValue() {
+        return this.value;
+      }
+    }
+    log.timeDecorateClass(Class.prototype, {
+      getValue: {
+        msg: 'msg',
+        id: 'id',
+      },
+    });
+    assert.equal((new Class).getValue(), 'works');
+  });
+  /* eslint-enable no-invalid-this */
+
   it('kitchen sink', () => {
     class Class {
       static get staticWorks() {
