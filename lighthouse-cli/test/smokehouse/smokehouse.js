@@ -19,7 +19,7 @@
  */
 
 /**
- * @typedef {{audits: Comparison[], errorCode: Comparison, finalUrl: Comparison}} ExpectedLHRResults
+ * @typedef {{audits: Comparison[], errorCode: Comparison, finalUrl: Comparison}} LHRComparison
  */
 
 /* eslint-disable no-console */
@@ -218,7 +218,7 @@ function findDifference(path, actual, expected) {
  * Collate results into comparisons of actual and expected scores on each audit.
  * @param {ExpectedLHR} actual
  * @param {ExpectedLHR} expected
- * @return {ExpectedLHRResults}
+ * @return {LHRComparison}
  */
 function collateResults(actual, expected) {
   const auditNames = Object.keys(expected.audits);
@@ -300,7 +300,7 @@ function reportAssertion(assertion) {
 /**
  * Log all the comparisons between actual and expected test results, then print
  * summary. Returns count of passed and failed tests.
- * @param {ExpectedLHRResults} results
+ * @param {LHRComparison} results
  * @return {{passed: number, failed: number}}
  */
 function report(results) {
