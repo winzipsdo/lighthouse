@@ -366,15 +366,15 @@ class GatherRunner {
 
   /**
    * @param {keyof GathererResults} gathererName
-   * @param {GathererResults[keyof GathererResults]} phaseResultPromises
+   * @param {GathererResults[keyof GathererResults]} resultPromises
    * @param {Partial<LH.GathererArtifacts>} gathererArtifacts
    */
-  static async convertGathererResultToArtifact(gathererName, phaseResultPromises, gathererArtifacts) {
+  static async convertGathererResultToArtifact(gathererName, resultPromises, gathererArtifacts) {
     // If the artifact has already been computed, don't do anything, leave it as-is.
     if (gathererArtifacts[gathererName] !== undefined) return;
 
     try {
-      const phaseResults = await Promise.all(phaseResultPromises);
+      const phaseResults = await Promise.all(resultPromises);
       // Take last defined pass result as artifact.
       const definedResults = phaseResults.filter(element => element !== undefined);
       const artifact = definedResults[definedResults.length - 1];
@@ -478,7 +478,7 @@ class GatherRunner {
             await GatherRunner.convertGathererResultToArtifact(name, gathererPromises, artifacts);
             // @ts-ignore - above method will throw if the artifact couldn't be computed
             return artifacts[name];
-          }
+          },
         };
 
         await driver.setThrottling(options.settings, passConfig);

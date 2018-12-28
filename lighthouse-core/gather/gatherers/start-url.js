@@ -6,7 +6,6 @@
 'use strict';
 
 const Gatherer = require('./gatherer');
-const manifestParser = require('../../lib/manifest-parser');
 
 /** @typedef {import('../driver.js')} Driver */
 
