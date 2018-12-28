@@ -18,6 +18,10 @@
  * @typedef {Pick<LH.Result, 'audits' | 'finalUrl' | 'requestedUrl'> & {errorCode?: string}} ExpectedLHR
  */
 
+/**
+ * @typedef {{audits: Comparison[], errorCode: Comparison, finalUrl: Comparison}} ExpectedLHRResults
+ */
+
 /* eslint-disable no-console */
 
 const fs = require('fs');
@@ -214,7 +218,7 @@ function findDifference(path, actual, expected) {
  * Collate results into comparisons of actual and expected scores on each audit.
  * @param {ExpectedLHR} actual
  * @param {ExpectedLHR} expected
- * @return {{audits: Comparison[], errorCode: Comparison, finalUrl: Comparison}}
+ * @return {ExpectedLHRResults}
  */
 function collateResults(actual, expected) {
   const auditNames = Object.keys(expected.audits);
@@ -255,7 +259,7 @@ function collateResults(actual, expected) {
 
 /**
  * Log the result of an assertion of actual and expected results.
- * @param {{category: string, equal: boolean, diff: ?Object, actual: boolean, expected: boolean}} assertion
+ * @param {Comparison} assertion
  */
 function reportAssertion(assertion) {
   // @ts-ignore - this doesn't exist now but could one day, so try not to break the future
@@ -296,7 +300,7 @@ function reportAssertion(assertion) {
 /**
  * Log all the comparisons between actual and expected test results, then print
  * summary. Returns count of passed and failed tests.
- * @param {{finalUrl: !Object, audits: !Array<!Object>, errorCode: !Object}} results
+ * @param {ExpectedLHRResults} results
  * @return {{passed: number, failed: number}}
  */
 function report(results) {
