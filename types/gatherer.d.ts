@@ -20,7 +20,7 @@ declare global {
       options?: object;
       /** Push to this array to add top-level warnings to the LHR. */
       LighthouseRunWarnings: Array<string>;
-      dangerouslyUsePreviousArtifact<K extends keyof GathererArtifacts>(artifactName: K): Promise<Artifacts[K] | undefined>;
+      dangerouslyUsePreviousArtifact<K extends keyof GathererArtifacts>(artifactName: K): Promise<Artifacts[K]>;
     }
 
     export interface LoadData {

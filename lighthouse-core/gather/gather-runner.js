@@ -472,7 +472,7 @@ class GatherRunner {
           /** @param {keyof LH.GathererArtifacts} name */
           async dangerouslyUsePreviousArtifact(name) {
             const gathererPromises = gathererResults[name];
-            if (!gathererPromises) throw new Error(`${name} not yet computed`);
+            if (!gathererPromises) throw new Error(`${name} Gatherer has not yet run`);
 
             const artifacts = {};
             await GatherRunner.convertGathererResultToArtifact(name, gathererPromises, artifacts);

@@ -18,7 +18,6 @@ class StartUrl extends Gatherer {
    */
   async afterPass(passContext) {
     const manifest = await passContext.dangerouslyUsePreviousArtifact('Manifest');
-    if (typeof manifest === 'undefined') throw new Error('Cannot');
     const startUrlInfo = this._readManifestStartUrl(manifest);
     if (startUrlInfo.isReadFailure) {
       return {statusCode: -1, explanation: startUrlInfo.reason};
