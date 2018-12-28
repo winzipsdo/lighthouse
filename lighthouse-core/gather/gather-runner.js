@@ -365,6 +365,32 @@ class GatherRunner {
   }
 
   /**
+   * @param {keyof GathererResults} gathererName
+   * @param {GathererResults[keyof GathererResults]} phaseResultPromises
+   * @param {Partial<LH.GathererArtifacts>} gathererArtifacts
+   */
+  static async convertGathererResultToArtifact(gathererName, phaseResultPromises, gathererArtifacts) {
+    // If the artifact has already been computed, don't do anything, leave it as-is.
+    if (gathererArtifacts[gathererName] !== undefined) return;
+
+    try {
+      const phaseResults = await Promise.all(phaseResultPromises);
+      // Take last defined pass result as artifact.
+      const definedResults = phaseResults.filter(element => element !== undefined);
+      const artifact = definedResults[definedResults.length - 1];
+      // Typecast pretends artifact always provided here, but checked below for top-level `throw`.
+      gathererArtifacts[gathererName] = /** @type {NonVoid<PhaseResult>} */ (artifact);
+    } catch (err) {
+      // Return error to runner to handle turning it into an error audit.
+      gathererArtifacts[gathererName] = err;
+    }
+
+    if (gathererArtifacts[gathererName] === undefined) {
+      throw new Error(`${gathererName} failed to provide an artifact.`);
+    }
+  }
+
+  /**
    * Takes the results of each gatherer phase for each gatherer and uses the
    * last produced value (that's not undefined) as the artifact for that
    * gatherer. If an error was rejected from a gatherer phase,
@@ -379,23 +405,8 @@ class GatherRunner {
 
     const resultsEntries = /** @type {GathererResultsEntries} */ (Object.entries(gathererResults));
     for (const [gathererName, phaseResultsPromises] of resultsEntries) {
-      if (gathererArtifacts[gathererName] !== undefined) continue;
-
-      try {
-        const phaseResults = await Promise.all(phaseResultsPromises);
-        // Take last defined pass result as artifact.
-        const definedResults = phaseResults.filter(element => element !== undefined);
-        const artifact = definedResults[definedResults.length - 1];
-        // Typecast pretends artifact always provided here, but checked below for top-level `throw`.
-        gathererArtifacts[gathererName] = /** @type {NonVoid<PhaseResult>} */ (artifact);
-      } catch (err) {
-        // Return error to runner to handle turning it into an error audit.
-        gathererArtifacts[gathererName] = err;
-      }
-
-      if (gathererArtifacts[gathererName] === undefined) {
-        throw new Error(`${gathererName} failed to provide an artifact.`);
-      }
+      await GatherRunner.convertGathererResultToArtifact(gathererName, phaseResultsPromises,
+          gathererArtifacts);
     }
 
     // Take only unique LighthouseRunWarnings.
@@ -458,6 +469,16 @@ class GatherRunner {
           passConfig,
           // *pass() functions and gatherers can push to this warnings array.
           LighthouseRunWarnings: baseArtifacts.LighthouseRunWarnings,
+          /** @param {keyof LH.GathererArtifacts} name */
+          async dangerouslyUsePreviousArtifact(name) {
+            const gathererPromises = gathererResults[name];
+            if (!gathererPromises) throw new Error(`${name} not yet computed`);
+
+            const artifacts = {};
+            await GatherRunner.convertGathererResultToArtifact(name, gathererPromises, artifacts);
+            // @ts-ignore - above method will throw if the artifact couldn't be computed
+            return artifacts[name];
+          }
         };
 
         await driver.setThrottling(options.settings, passConfig);
