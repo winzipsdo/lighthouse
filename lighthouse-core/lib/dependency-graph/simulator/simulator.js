@@ -140,7 +140,7 @@ class Simulator {
     const firstNodeIndexWithGreaterStartTime = this._cachedNodeListByStartTime
       .findIndex(candidate => candidate.startTime > node.startTime);
     const insertionIndex = firstNodeIndexWithGreaterStartTime === -1 ?
-      0 : firstNodeIndexWithGreaterStartTime + 1;
+      this._cachedNodeListByStartTime.length : firstNodeIndexWithGreaterStartTime;
     this._cachedNodeListByStartTime.splice(insertionIndex, 0, node);
 
     this._nodes[NodeState.ReadyToStart].add(node);
@@ -194,11 +194,11 @@ class Simulator {
   }
 
   /**
-   * @param {Set<Node>} nodes
    * @return {Node[]}
    */
-  _getNodesSortedByStartTime(nodes) {
-    return this._cachedNodeListByStartTime;
+  _getNodesSortedByStartTime() {
+    // Make a copy so we don't skip nodes due to concurrent modification
+    return Array.from(this._cachedNodeListByStartTime);
   }
 
   /**
