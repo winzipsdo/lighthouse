@@ -94,6 +94,21 @@ module.exports = class ConnectionPool {
   }
 
   /**
+   * @param {Array<TcpConnection>} connections
+   */
+  _findConnectionWithLargestCongestionWindow(connections) {
+    /** @type {TcpConnection|null} */
+    let maxConnection = null;
+    for (let i = 0; i < connections.length; i++) {
+      const connection = connections[i];
+      const currentMax = (maxConnection && maxConnection.congestionWindow) || -Infinity;
+      if (connection.congestionWindow > currentMax) maxConnection = connection;
+    }
+
+    return maxConnection;
+  }
+
+  /**
    * This method finds an available connection to the origin specified by the network record or null
    * if no connection was available. If returned, connection will not be available for other network
    * records until release is called.
@@ -114,21 +129,20 @@ module.exports = class ConnectionPool {
     const origin = String(record.parsedURL.securityOrigin);
     /** @type {TcpConnection[]} */
     const connections = this._connectionsByOrigin.get(origin) || [];
-    // Sort connections by decreasing congestion window, i.e. warmest to coldest
-    const availableConnections = connections
-      .filter(connection => !this._connectionsInUse.has(connection))
-      .sort((a, b) => b.congestionWindow - a.congestionWindow);
-
     const observedConnectionWasReused = !!this._connectionReusedByRequestId.get(record.requestId);
+    // Find the set of available connections based on the acquire options
+    const availableConnections = connections
+      .filter(connection => {
+        // Connections that are in use are never available
+        if (this._connectionsInUse.has(connection)) return false;
+        // If we don't need to match connection reuse, we're done; it's available!
+        if (options.ignoreConnectionReused) return true;
+        // Otherwise, make sure the connection warmth matches the state of the record we're acquiring for.
+        // Use the _warmed property instead of the getter because this is a surprisingly hot code path.
+        return connection._warmed === observedConnectionWasReused;
+      });
 
-    /** @type {TcpConnection|undefined} */
-    let connectionToUse = availableConnections[0];
-    if (!options.ignoreConnectionReused) {
-      connectionToUse = availableConnections.find(
-        connection => connection.isWarm() === observedConnectionWasReused
-      );
-    }
-
+    const connectionToUse = this._findConnectionWithLargestCongestionWindow(availableConnections);
     if (!connectionToUse) return null;
 
     this._connectionsInUse.add(connectionToUse);

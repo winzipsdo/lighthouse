@@ -59,6 +59,8 @@ class Simulator {
     ), 1);
     this._cpuSlowdownMultiplier = this._options.cpuSlowdownMultiplier;
     this._layoutTaskMultiplier = this._cpuSlowdownMultiplier * this._options.layoutTaskMultiplier;
+    /** @type {Array<Node>} */
+    this._cachedNodeListByStartTime = [];
 
     // Properties reset on every `.simulate` call but duplicated here for type checking
     this._flexibleOrdering = false;
@@ -96,6 +98,7 @@ class Simulator {
     this._numberInProgressByType = new Map();
 
     this._nodes = {};
+    this._cachedNodeListByStartTime = [];
     for (const state of Object.values(NodeState)) {
       this._nodes[state] = new Set();
     }
@@ -134,6 +137,12 @@ class Simulator {
    * @param {number} queuedTime
    */
   _markNodeAsReadyToStart(node, queuedTime) {
+    const firstNodeIndexWithGreaterStartTime = this._cachedNodeListByStartTime
+      .findIndex(candidate => candidate.startTime > node.startTime);
+    const insertionIndex = firstNodeIndexWithGreaterStartTime === -1 ?
+      0 : firstNodeIndexWithGreaterStartTime + 1;
+    this._cachedNodeListByStartTime.splice(insertionIndex, 0, node);
+
     this._nodes[NodeState.ReadyToStart].add(node);
     this._nodes[NodeState.NotReadyToStart].delete(node);
     this._setTimingData(node, {queuedTime});
@@ -144,6 +153,9 @@ class Simulator {
    * @param {number} startTime
    */
   _markNodeAsInProgress(node, startTime) {
+    const indexOfNodeToStart = this._cachedNodeListByStartTime.indexOf(node);
+    this._cachedNodeListByStartTime.splice(indexOfNodeToStart, 1);
+
     this._nodes[NodeState.InProgress].add(node);
     this._nodes[NodeState.ReadyToStart].delete(node);
     this._numberInProgressByType.set(node.type, this._numberInProgress(node.type) + 1);
@@ -186,10 +198,7 @@ class Simulator {
    * @return {Node[]}
    */
   _getNodesSortedByStartTime(nodes) {
-    return Array.from(nodes).sort((nodeA, nodeB) => {
-      // Sort nodes by startTime to match original execution order
-      return nodeA.startTime - nodeB.startTime;
-    });
+    return this._cachedNodeListByStartTime;
   }
 
   /**
