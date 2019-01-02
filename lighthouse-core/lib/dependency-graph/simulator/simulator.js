@@ -444,7 +444,7 @@ class Simulator {
     // loop as long as we have nodes in the queue or currently in progress
     while (nodesReadyToStart.size || nodesInProgress.size) {
       // move all possible queued nodes to in progress
-      for (const node of this._getNodesSortedByStartTime(nodesReadyToStart)) {
+      for (const node of this._getNodesSortedByStartTime()) {
         this._startNodeIfPossible(node, totalElapsedTime);
       }
 
