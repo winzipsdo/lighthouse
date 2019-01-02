@@ -9,9 +9,9 @@ const Audit = require('../audit');
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Imperative title of a Lighthouse audit that tells the user that their site has a meta description element. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that tells the user that their site has a meta description element. This is displayed in a list of audit titles that Lighthouse generates. */
   title: 'Document has a meta description',
-  /** Imperative title of a Lighthouse audit that tells the user that their site has a meta description element. This imperative title is shown when a site does not have a valid meta description. */
+  /** Title of a Lighthouse audit that tells the user that their site has a meta description element. This title is shown when a site does not have a valid meta description. */
   failureTitle: 'Document does not have a meta description',
   /** Description of a Lighthouse audit that tells the user *why* they need to have meta descriptions on their page. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Meta descriptions may be included in search results to concisely summarize ' +

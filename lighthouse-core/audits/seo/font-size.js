@@ -14,15 +14,15 @@ const ViewportAudit = require('../viewport');
 const MINIMAL_PERCENTAGE_OF_LEGIBLE_TEXT = 60;
 
 const UIStrings = {
-  /** Imperative title of a Lighthouse audit that tells the user that they should use font sizes that are easily read by the user. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that tells the user that they should use font sizes that are easily read by the user. This is displayed in a list of audit titles that Lighthouse generates. */
   title: 'Document uses legible font sizes',
-  /** Imperative title of a Lighthouse audit that tells the user that they should use font sizes that are easily read by the user. This imperative title is shown to users when there is a font that is too small to be read by the user. */
+  /** Title of a Lighthouse audit that tells the user that they should use font sizes that are easily read by the user. This title is shown to users when there is a font that is too small to be read by the user. */
   failureTitle: 'Document doesn\'t use legible font sizes',
   /** Description of a Lighthouse audit that tells the user *why* they need to use a larger font size. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Font sizes less than 12px are too small to be legible and require mobile visitors to “pinch to zoom” in order to read. Strive to have >60% of page text ≥12px. [Learn more](https://developers.google.com/web/tools/lighthouse/audits/font-sizes).',
   /** [ICU Syntax] Label for the audit identifying font sizes that are too small. */
   displayValue: '{decimalProportion, number, extendedPercent} legible text',
-  /** Explanatory message stating that there was a failure in an audit caused by a missing page viewport config. */
+  /** Explanatory message stating that there was a failure in an audit caused by a missing page viewport meta tag configuration. */
   explanationViewport: 'Text is illegible because of a missing viewport config',
   /** Explanatory message stating that there was a failure in an audit caused by a certain percentage of the text on the page being too small. */
   explanation: '{decimalProportion, number, extendedPercent} of text is too small{disclaimer}.',

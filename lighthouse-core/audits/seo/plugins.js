@@ -34,9 +34,9 @@ const SOURCE_PARAMS = new Set([
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Imperative title of a Lighthouse audit that tells the user that their site is able to be indexed by search engines because they do not use plugin content. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that tells the user that their site is able to be indexed by search engines because they do not use plugin content. This is displayed in a list of audit titles that Lighthouse generates. */
   title: 'Document avoids plugins',
-  /** Imperative title of a Lighthouse audit that tells the user that their site is able to be indexed by search engines because they do not use plugin content. This imperative title is shown when the site is using plugins and therefore cannot be indexed. */
+  /** Title of a Lighthouse audit that tells the user that their site is able to be indexed by search engines because they do not use plugin content. This title is shown when the site is using plugins and therefore cannot be indexed. */
   failureTitle: 'Document uses plugins',
   /** Description of a Lighthouse audit that tells the user *why* they need to avoid using plugin content. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Search engines can\'t index plugin content, and ' +

@@ -21,9 +21,9 @@ const BLOCKLIST = new Set([
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Imperative title of a Lighthouse audit that tells the user their links have descriptive enough text for a search engine crawler to parse them. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that tells the user their links have descriptive enough text for a search engine crawler to parse them. This is displayed in a list of audit titles that Lighthouse generates. */
   title: 'Links have descriptive text',
-  /** Imperative title of a Lighthouse audit that tells the user their links have descriptive enough text for a search engine crawler to parse them. This imperative title is shown when there are links on the page without proper text to describe them. */
+  /** Title of a Lighthouse audit that tells the user their links have descriptive enough text for a search engine crawler to parse them. This title is shown when there are links on the page without proper text to describe them. */
   failureTitle: 'Links do not have descriptive text',
   /** Description of a Lighthouse audit that tells the user *why* they need to have descriptive text on the links in their page. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Descriptive link text helps search engines understand your content. ' +

@@ -11,7 +11,7 @@ const i18n = require('../../../lib/i18n/i18n.js');
 const UIStrings = {
   /** Description of a Lighthouse audit that tells the user *why* and *how* they need to test their site to be mobile friendly. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Take the [Mobile-Friendly Test](https://search.google.com/test/mobile-friendly) to check for audits not covered by Lighthouse, like sizing tap targets appropriately. [Learn more](https://developers.google.com/search/mobile-sites/).',
-  /** Imperative title of a Lighthouse audit that tells the user that their page is setup to be compatible with mobile devices such as cellphones. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that tells the user that their page is setup to be compatible with mobile devices such as cellphones. This is displayed in a list of audit titles that Lighthouse generates. */
   title: 'Page is mobile friendly',
 };
 

@@ -13,9 +13,9 @@ const LINK_HEADER = 'link';
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Imperative title of a Lighthouse audit that tells the user their site has a valid rel=canonical links. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that tells the user their site has a valid rel=canonical links. This is displayed in a list of audit titles that Lighthouse generates. */
   title: 'Document has a valid `rel=canonical`',
-  /** Imperative title of a Lighthouse audit that tells the user their site has a valid rel=canonical links. This imperative title is shown to users when the rel=canonical link is invalid. */
+  /** Title of a Lighthouse audit that tells the user their site has a valid rel=canonical links. This title is shown to users when the rel=canonical link is invalid. */
   failureTitle: 'Document does not have a valid `rel=canonical`',
   /** Description of a Lighthouse audit that tells the user *why* they need to have a valid rel=canonical link. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Canonical links suggest which URL to show in search results. ' +
@@ -24,7 +24,7 @@ const UIStrings = {
   explanationConflict: 'Multiple conflicting URLs ({urlList})',
   /** [ICU Syntax] Explanatory message stating that there was a failure in an audit caused by a URL being invalid. */
   explanationInvalid: 'Invalid URL ({url})',
-  /** [ICU Syntax] Explanatory message stating that there was a failure in an audit caused by a URL being relative. */
+  /** [ICU Syntax] Explanatory message stating that there was a failure in an audit caused by a URL being relative instead of absolute. */
   explanationRelative: 'Relative URL ({url})',
   /** [ICU Syntax] Explanatory message stating that there was a failure in an audit caused by a URL pointing to a different hreflang than the current context. */
   explanationPointsElsewhere: 'Points to another hreflang location ({href})',
