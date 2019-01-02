@@ -59,19 +59,41 @@ describe('CategoryRenderer', () => {
     assert.equal(title.textContent, auditRef.result.title);
     assert.ok(description.querySelector('a'), 'audit help text contains coverted markdown links');
     assert.ok(auditDOM.classList.contains('lh-audit--fail'));
-    assert.ok(auditDOM.classList.contains(`lh-audit--${auditRef.result.scoreDisplayMode.toLowerCase()}`));
+    assert.ok(
+      auditDOM.classList.contains(`lh-audit--${auditRef.result.scoreDisplayMode.toLowerCase()}`));
+  });
+
+  it('handles an audit with no scoreDisplayMode', () => {
+    const audit1 = renderer.renderAudit({
+      score: 0,
+      result: {
+        description: 'help text',
+        explanation: 'A reason',
+        title: 'Audit title',
+      },
+    });
+    assert.ok(audit1.classList.contains('lh-audit--fail'));
   });
 
   it('renders an audit explanation when appropriate', () => {
     const audit1 = renderer.renderAudit({
-      scoreDisplayMode: 'binary', score: 0,
-      result: {description: 'help text', explanation: 'A reason', title: 'Audit title'},
+      score: 0,
+      result: {
+        scoreDisplayMode: 'binary',
+        description: 'help text',
+        explanation: 'A reason',
+        title: 'Audit title',
+      },
     });
     assert.ok(audit1.querySelector('.lh-audit-explanation'));
 
     const audit2 = renderer.renderAudit({
-      scoreDisplayMode: 'binary', score: 0,
-      result: {description: 'help text', title: 'Audit title'},
+      score: 0,
+      result: {
+        scoreDisplayMode: 'binary',
+        description: 'help text',
+        title: 'Audit title',
+      },
     });
     assert.ok(!audit2.querySelector('.lh-audit-explanation'));
   });

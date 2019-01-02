@@ -153,7 +153,10 @@ class CategoryRenderer {
    */
   _setRatingClass(element, score, scoreDisplayMode) {
     const rating = Util.calculateRating(score, scoreDisplayMode);
-    element.classList.add(`lh-audit--${rating}`, `lh-audit--${scoreDisplayMode.toLowerCase()}`);
+    element.classList.add(`lh-audit--${rating}`);
+    if (typeof scoreDisplayMode === 'string') {
+      element.classList.add(`lh-audit--${scoreDisplayMode.toLowerCase()}`);
+    }
     return element;
   }
 
