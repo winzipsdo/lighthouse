@@ -753,7 +753,7 @@
   },
   "lighthouse-core/audits/seo/canonical.js | explanationRoot": {
     "message": "Points to a root of the same origin",
-    "description": "Explanatory message stating that there was a failure in an audit caused by a URL pointing to a root of the same origin."
+    "description": "Explanatory message stating that the page's canonical URL was pointing to a root of the same origin which is a common mistake. The canonical URL should point a different page with the same content whose URL is preferred, not a parent or root page."
   },
   "lighthouse-core/audits/seo/canonical.js | failureTitle": {
     "message": "Document does not have a valid `rel=canonical`",
@@ -772,12 +772,16 @@
     "description": "[ICU Syntax] Label for the audit identifying font sizes that are too small."
   },
   "lighthouse-core/audits/seo/font-size.js | explanation": {
-    "message": "{decimalProportion, number, extendedPercent} of text is too small{disclaimer}.",
+    "message": "{decimalProportion, number, extendedPercent} of text is too small.",
     "description": "Explanatory message stating that there was a failure in an audit caused by a certain percentage of the text on the page being too small."
   },
   "lighthouse-core/audits/seo/font-size.js | explanationViewport": {
     "message": "Text is illegible because of a missing viewport config",
     "description": "Explanatory message stating that there was a failure in an audit caused by a missing page viewport meta tag configuration."
+  },
+  "lighthouse-core/audits/seo/font-size.js | explanationWithDisclaimer": {
+    "message": "{decimalProportion, number, extendedPercent} of text is too small (based on {decimalProportionVisited, number, extendedPercent} sample).",
+    "description": "Explanatory message stating that there was a failure in an audit caused by a certain percentage of the text on the page being too small, based on a sample size of text that was less than 100% of the text on the page."
   },
   "lighthouse-core/audits/seo/font-size.js | failureTitle": {
     "message": "Document doesn't use legible font sizes",

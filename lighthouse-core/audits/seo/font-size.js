@@ -25,7 +25,10 @@ const UIStrings = {
   /** Explanatory message stating that there was a failure in an audit caused by a missing page viewport meta tag configuration. */
   explanationViewport: 'Text is illegible because of a missing viewport config',
   /** Explanatory message stating that there was a failure in an audit caused by a certain percentage of the text on the page being too small. */
-  explanation: '{decimalProportion, number, extendedPercent} of text is too small{disclaimer}.',
+  explanation: '{decimalProportion, number, extendedPercent} of text is too small.',
+  /** Explanatory message stating that there was a failure in an audit caused by a certain percentage of the text on the page being too small, based on a sample size of text that was less than 100% of the text on the page. */
+  explanationWithDisclaimer: '{decimalProportion, number, extendedPercent} of text is too ' +
+    'small (based on {decimalProportionVisited, number, extendedPercent} sample).',
 };
 
 const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
@@ -290,15 +293,19 @@ class FontSize extends Audit {
     let explanation;
     if (!passed) {
       const percentageOfFailingText = parseFloat((100 - percentageOfPassingText).toFixed(2)) / 100;
-      let disclaimer = '';
 
       // if we were unable to visit all text nodes we should disclose that information
       if (visitedTextLength < totalTextLength) {
-        const percentageOfVisitedText = visitedTextLength / totalTextLength * 100;
-        disclaimer = ` (based on ${percentageOfVisitedText.toFixed()}% sample)`;
+        const percentageOfVisitedText = (visitedTextLength / totalTextLength).toFixed(2);
+        explanation = str_(UIStrings.explanationWithDisclaimer,
+          {
+            decimalProportion: percentageOfFailingText,
+            decimalProportionVisited: percentageOfVisitedText,
+          });
+      } else {
+        explanation = str_(UIStrings.explanation,
+          {decimalProportion: percentageOfFailingText});
       }
-      explanation = str_(UIStrings.explanation,
-        {decimalProportion: percentageOfFailingText, disclaimer});
     }
 
     return {

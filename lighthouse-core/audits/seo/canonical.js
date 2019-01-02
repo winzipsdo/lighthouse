@@ -30,7 +30,7 @@ const UIStrings = {
   explanationPointsElsewhere: 'Points to another hreflang location ({href})',
   /** [ICU Syntax] Explanatory message stating that there was a failure in an audit caused by a URL pointing to a different domain. */
   explanationDifferentDomain: 'Points to a different domain ({url})',
-  /** Explanatory message stating that there was a failure in an audit caused by a URL pointing to a root of the same origin. */
+  /** Explanatory message stating that the page's canonical URL was pointing to a root of the same origin which is a common mistake. The canonical URL should point a different page with the same content whose URL is preferred, not a parent or root page. */
   explanationRoot: 'Points to a root of the same origin',
 };
 
