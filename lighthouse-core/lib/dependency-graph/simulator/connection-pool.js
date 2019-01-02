@@ -97,8 +97,9 @@ module.exports = class ConnectionPool {
    * @param {Array<TcpConnection>} connections
    */
   _findConnectionWithLargestCongestionWindow(connections) {
-    /** @type {TcpConnection|null} */
-    let maxConnection = connections[0] || null;
+    if (!connections.length) return null;
+
+    let maxConnection = connections[0];
     for (let i = 1; i < connections.length; i++) {
       const connection = connections[i];
       const currentMax = maxConnection.congestionWindow;
