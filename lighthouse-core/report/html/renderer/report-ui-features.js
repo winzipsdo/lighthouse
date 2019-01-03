@@ -45,6 +45,8 @@ class ReportUIFeatures {
     /** @type {HTMLElement} */
     this.headerBackground; // eslint-disable-line no-unused-expressions
     /** @type {HTMLElement} */
+    this.headerMetadata; // eslint-disable-line no-unused-expressions
+    /** @type {HTMLElement} */
     this.lighthouseIcon; // eslint-disable-line no-unused-expressions
     /** @type {!HTMLElement} */
     this.scoresWrapperBg; // eslint-disable-line no-unused-expressions
@@ -118,8 +120,6 @@ class ReportUIFeatures {
   onMediaQueryChange(mql) {
     const root = this._dom.find('.lh-root', this._document);
     root.classList.toggle('lh-narrow', mql.matches);
-    // Reset animations for the narrow view header height change.
-    this._setupHeaderAnimation();
   }
 
   _setupExportButton() {
@@ -136,6 +136,7 @@ class ReportUIFeatures {
     this.headerOverlap = parseFloat(computedMarginTop || '0');
     this.headerSticky = this._dom.find('.lh-header-sticky', this._document);
     this.headerBackground = this._dom.find('.lh-header-bg', this._document);
+    this.headerMetadata = this._dom.find('.lh-metadata', this._document);
     this.lighthouseIcon = this._dom.find('.lh-lighthouse', this._document);
     this.scoresWrapperBg = this._dom.find('.lh-scores-wrapper__background', this._document);
     this.productInfo = this._dom.find('.lh-product-info', this._document);
@@ -231,6 +232,7 @@ class ReportUIFeatures {
       `translate3d(0,` +
       ` calc(-${scrollPct * this.headerOverlap * -1}px), 0) scale(${1 - scrollPct})`;
     this.lighthouseIcon.style.opacity = (1 - scrollPct).toString();
+    this.headerMetadata.style.opacity = (1 - scrollPct).toString();
 
     // Switch up the score background & shadows
     this.scoresWrapperBg.style.opacity = (1 - scrollPct).toString();

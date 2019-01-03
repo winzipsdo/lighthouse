@@ -164,9 +164,6 @@ limitations under the License.
       width: 100%;
       will-change: transform;
     }
-    .lh-narrow .lh-header-bg {
-      height: var(--report-header-height-narrow);
-    }
     .lh-lighthouse {
       position: absolute;
       bottom: -4px;
@@ -181,9 +178,6 @@ limitations under the License.
       max-width: 100%; /* support text-overflow on url */
       position: relative;
     }
-    .lh-narrow .lh-header {
-      height: var(--report-header-height-narrow);
-    }
     .lh-metadata {
       flex: 1 1 0;
       padding: calc(var(--section-padding) / 2);
@@ -192,6 +186,7 @@ limitations under the License.
       color: var(--report-header-color);
       z-index: 1;
       position: relative;
+      max-width: 60%;
     }
     .lh-metadata__results {
       text-overflow: ellipsis;
