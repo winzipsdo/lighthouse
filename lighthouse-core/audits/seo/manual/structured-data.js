@@ -9,9 +9,9 @@ const ManualAudit = require('../../manual/manual-audit');
 const i18n = require('../../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Description of a Lighthouse audit that tells the user *how* to test their page for using valid structured data. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
+  /** Description of a Lighthouse audit that provides detail on the structured data in a page. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Run the [Structured Data Testing Tool](https://search.google.com/structured-data/testing-tool/) and the [Structured Data Linter](http://linter.structured-data.org/) to validate structured data. [Learn more](https://developers.google.com/search/docs/guides/mark-up-content).',
-  /** Title of a Lighthouse audit that tells the user that their page has structured data. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that provides detail on the structured data in a page. This is displayed in a list of audit titles that Lighthouse generates. */
   title: 'Structured data is valid',
 };
 

@@ -13,9 +13,9 @@ const LINK_HEADER = 'link';
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Title of a Lighthouse audit that tells the user their site has a valid rel=canonical links. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that provides detail on a page's rel=canonical link. This descriptive title is shown to users when the rel=canonical link is valid. */
   title: 'Document has a valid `rel=canonical`',
-  /** Title of a Lighthouse audit that tells the user their site has a valid rel=canonical links. This title is shown to users when the rel=canonical link is invalid. */
+  /** Title of a Lighthouse audit that provides detail on a page's rel=canonical link. This imperative title is shown to users when the rel=canonical link is invalid and should be fixed. */
   failureTitle: 'Document does not have a valid `rel=canonical`',
   /** Description of a Lighthouse audit that tells the user *why* they need to have a valid rel=canonical link. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'Canonical links suggest which URL to show in search results. ' +

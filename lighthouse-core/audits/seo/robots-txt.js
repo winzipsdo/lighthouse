@@ -34,9 +34,9 @@ const SITEMAP_VALID_PROTOCOLS = new Set(['https:', 'http:', 'ftp:']);
 const i18n = require('../../lib/i18n/i18n.js');
 
 const UIStrings = {
-  /** Title of a Lighthouse audit that tells the user their site has a valid robots.txt file. This is displayed in a list of audit titles that Lighthouse generates. */
+  /** Title of a Lighthouse audit that provides detail on the robots.txt file on the page. This descriptive title is shown when the robots.txt file is present and configured correctly. */
   title: 'robots.txt is valid',
-  /** Title of a Lighthouse audit that tells the user their site has a valid robots.txt file. This title is shown when the robots.txt is not valid for a site.*/
+  /** Title of a Lighthouse audit that provides detail on the robots.txt file on the page. This imperative title is shown when the robots.txt file is misconfigured, which makes the page hard or impossible to scan via web crawler. */
   failureTitle: 'robots.txt is not valid',
   /** Description of a Lighthouse audit that tells the user *why* they need to have a valid robots.txt file. This is displayed after a user expands the section to see more. No character length limits. 'Learn More' becomes link text to additional documentation. */
   description: 'If your robots.txt file is malformed, crawlers may not be able to understand ' +
