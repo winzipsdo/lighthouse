@@ -9,8 +9,6 @@
 
 /** @fileoverview Read in the snyk snapshot, remove whatever we don't need, write it back */
 
-/* global d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests */
-
 const {readFileSync, writeFileSync} = require('fs');
 const prettyJSONStringify = require('pretty-json-stringify');
 const libDetectorSource = readFileSync(require.resolve('js-library-detector/library/libraries.js'),
@@ -34,10 +32,15 @@ writeFileSync(filename, output, 'utf8');
 function cleanAndFormat(vulnString) {
   const snapshot = /** @type {!SnykDB} */ (JSON.parse(vulnString));
   // Hack to deal with non-node-friendly code.
-  eval(libDetectorSource.replace(/var /g, 'global.'));
+  const librariesDefinition = eval(`
+    (() => {
+      ${libDetectorSource}
+      return d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests;
+    })()
+  `);
+
   // Identify all npm package names that can be detected.
-  // @ts-ignore
-  const detectableLibs = Object.values(d41d8cd98f00b204e9800998ecf8427e_LibraryDetectorTests)
+  const detectableLibs = Object.values(librariesDefinition)
     .map(lib => lib.npm)
     .filter(Boolean);
 
