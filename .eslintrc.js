@@ -14,6 +14,8 @@ module.exports = {
     es6: true,
   },
   rules: {
+    // added by neal
+    'no-console': 0,
     // 2 == error, 1 == warning, 0 == off
     'eqeqeq': 2,
     'indent': [2, 2, {
