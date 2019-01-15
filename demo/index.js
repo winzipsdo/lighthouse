@@ -2,6 +2,8 @@
 
 const lighthouse = require('../lighthouse-core');
 const ChromeLauncher = require('chrome-launcher');
+const desktopConfig = require('./config/neal-desktop-config');
+const mobileConfig = require('./config/neal-mobile-config'); // eslint-disable-line no-unused-vars
 
 function launchChromeAndRunLighthouse(url, opts, config = null) {
   return ChromeLauncher.launch({chromeFlags: opts.chromeFlags}).then(chrome => {
@@ -13,18 +15,36 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
       // use results.report for the HTML/JSON/CSV output as a string
       // use results.artifacts for the trace/screenshots/other specific case you need (rarer)
       return chrome.kill().then(() => results.lhr);
+    })
+    .catch((err) => {
+      console.log(err);
     });
   });
 }
 
 const opts = {
-  chromeFlags: ['--show-paint-rects', '--headless'],
   locale: 'zh',
+  chromeFlags: ['--show-paint-rects', '--headless'],
+  onlyCategories: ['performance'],
 };
 
 // Usage:
-// launchChromeAndRunLighthouse('https://www.baidu.com', opts)
-launchChromeAndRunLighthouse('http://127.0.0.1:8080/', opts)
-.then((results) => {
-  console.log(results);
-});
+// launchChromeAndRunLighthouse('http://www.xueersi.com', opts, desktopConfig)
+// // launchChromeAndRunLighthouse('http://127.0.0.1:8080/', opts, desktopConfig)
+// .then((results) => {
+//   console.log(JSON.stringify(results));
+// });
+
+// launchChromeAndRunLighthouse('http://127.0.0.1:8080/', opts, mobileConfig)
+// .then((results) => {
+//   console.log(results);
+// });
+
+module.exports = {
+  config: {
+    flags: opts,
+    desktopConfig,
+    mobileConfig,
+  },
+  launchChromeAndRunLighthouse,
+};
